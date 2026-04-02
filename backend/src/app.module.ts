@@ -6,6 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AuditModule } from './audit/audit.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { KycModule } from './kyc/kyc.module';
+import { WalletsModule } from './wallets/wallets.module';
+import { LedgerModule } from './ledger/ledger.module';
+import { AssetsModule } from './assets/assets.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -42,6 +46,10 @@ import {
     NotificationsModule,
     AuthModule,
     UsersModule,
+    KycModule,
+    WalletsModule,
+    LedgerModule,
+    AssetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
