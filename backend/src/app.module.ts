@@ -10,6 +10,10 @@ import { KycModule } from './kyc/kyc.module';
 import { WalletsModule } from './wallets/wallets.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { AssetsModule } from './assets/assets.module';
+import { PaymentsModule } from './payments/payments.module';
+import { ExchangeModule } from './exchange/exchange.module';
+import { BotsModule } from './bots/bots.module';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -50,6 +54,10 @@ import {
     WalletsModule,
     LedgerModule,
     AssetsModule,
+    PaymentsModule,
+    ExchangeModule,
+    BotsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
