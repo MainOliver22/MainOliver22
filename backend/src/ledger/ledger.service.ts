@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, QueryRunner } from 'typeorm';
+import { IsNull, Repository, DataSource, QueryRunner } from 'typeorm';
 import { Account } from '../database/entities/account.entity';
 import { LedgerEntry } from '../database/entities/ledger-entry.entity';
 import { Transaction } from '../database/entities/transaction.entity';
@@ -38,7 +38,7 @@ export class LedgerService {
     accountType: AccountType,
   ): Promise<Account> {
     const existing = await this.accountRepo.findOne({
-      where: { userId, assetId, type: accountType },
+      where: { userId: userId ?? IsNull(), assetId, type: accountType },
     });
     if (existing) return existing;
 

@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Deposit } from '../database/entities/deposit.entity';
+import { Withdrawal } from '../database/entities/withdrawal.entity';
+import { Asset } from '../database/entities/asset.entity';
+import { Account } from '../database/entities/account.entity';
+import { Transaction } from '../database/entities/transaction.entity';
+import { LedgerEntry } from '../database/entities/ledger-entry.entity';
+import { LedgerModule } from '../ledger/ledger.module';
+import { PaymentsService } from './payments.service';
+import { PaymentsController } from './payments.controller';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Deposit, Withdrawal, Asset, Account, Transaction, LedgerEntry]),
+    LedgerModule,
+  ],
+  providers: [PaymentsService],
+  controllers: [PaymentsController],
+  exports: [PaymentsService],
+})
+export class PaymentsModule {}
