@@ -1,0 +1,8 @@
+export enum BotStrategyType {
+  GRID = 'GRID',
+  DCA = 'DCA',
+  MOMENTUM = 'MOMENTUM',
+  ARBITRAGE = 'ARBITRAGE',
+  MEAN_REVERSION = 'MEAN_REVERSION',
+  CUSTOM = 'CUSTOM',
+}
