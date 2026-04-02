@@ -1,0 +1,8 @@
+export enum ExchangeOrderStatus {
+  QUOTED = 'QUOTED',
+  PENDING = 'PENDING',
+  FILLED = 'FILLED',
+  PARTIALLY_FILLED = 'PARTIALLY_FILLED',
+  CANCELLED = 'CANCELLED',
+  EXPIRED = 'EXPIRED',
+}
