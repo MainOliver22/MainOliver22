@@ -16,6 +16,7 @@ export default function Navbar() {
             <Link href="/bots" className="text-sm text-gray-600 hover:text-gray-900">Bots</Link>
             <Link href="/exchange" className="text-sm text-gray-600 hover:text-gray-900">Exchange</Link>
             <Link href="/deposit" className="text-sm text-gray-600 hover:text-gray-900">Deposit</Link>
+            <Link href="/withdraw" className="text-sm text-gray-600 hover:text-gray-900">Withdraw</Link>
             <Link href="/notifications" className="relative text-gray-600 hover:text-gray-900"><Bell className="h-5 w-5" /></Link>
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-gray-600" />

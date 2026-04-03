@@ -61,6 +61,7 @@ export default function DashboardPage() {
             <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
             <div className="space-y-2">
               <Link href="/deposit"><Button className="w-full" size="sm">Deposit Funds</Button></Link>
+              <Link href="/withdraw"><Button className="w-full" size="sm" variant="secondary">Withdraw</Button></Link>
               <Link href="/exchange"><Button className="w-full" size="sm" variant="secondary">Exchange</Button></Link>
               <Link href="/bots"><Button className="w-full" size="sm" variant="ghost">Bot Trading</Button></Link>
             </div>
