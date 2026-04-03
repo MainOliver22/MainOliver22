@@ -35,6 +35,7 @@ frontend/src/
   app/dashboard/  Portfolio dashboard + balances
   app/kyc/        KYC onboarding + status
   app/deposit/    Deposit funds
+  app/withdraw/   Withdraw funds
   app/exchange/   Asset exchange UI
   app/bots/       Bot trading UI
   app/admin/      Admin panel (dashboard, users, KYC, audit)
@@ -123,5 +124,5 @@ cd frontend && npm install && npm run dev
 - [ ] Bot backtesting and simulation mode
 - [ ] External exchange connectors (Binance/Bybit REST + WebSocket)
 - [ ] AML/sanctions screening on withdrawals
-- [ ] GitHub Actions CI/CD pipeline
-- [ ] TypeORM migrations (replace `synchronize: true` for production)
+- [x] GitHub Actions CI/CD pipeline
+- [x] TypeORM migrations (replace `synchronize: true` for production)
