@@ -20,19 +20,7 @@ import { TradeSide } from '../database/enums/trade-side.enum';
 import { TradeStatus } from '../database/enums/trade-status.enum';
 import { CreateStrategyDto } from './dto/create-strategy.dto';
 import { CreateInstanceDto } from './dto/create-instance.dto';
-
-/** Mock asset prices for simulation */
-const MOCK_PRICES: Record<string, number> = {
-  BTC: 40000,
-  ETH: 2500,
-  BNB: 320,
-  SOL: 100,
-  ADA: 0.5,
-  USDT: 1,
-  USDC: 1,
-  XRP: 0.6,
-  DOGE: 0.08,
-};
+import { MOCK_USD_PRICES } from '../common/mock-prices';
 
 @Injectable()
 export class BotsService {
@@ -230,7 +218,7 @@ export class BotsService {
     const asset = await this.assetRepo.findOne({ where: { symbol: assetSymbol } });
     if (!asset) throw new NotFoundException(`Asset ${assetSymbol} not found`);
 
-    const basePrice = MOCK_PRICES[assetSymbol.toUpperCase()] ?? 100;
+    const basePrice = MOCK_USD_PRICES[assetSymbol.toUpperCase()] ?? 100;
     const volatility = 0.02;
     const price = basePrice * (1 + (Math.random() - 0.5) * volatility);
     const amount = (parseFloat(instance.allocatedAmount) * 0.1) / price;
