@@ -11,7 +11,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { KycCase } from '../database/entities/kyc-case.entity';
-import { KycDocument } from '../database/entities/kyc-document.entity';
 import { KycStatus } from '../database/enums/kyc-status.enum';
 import { KycLevel } from '../database/enums/kyc-level.enum';
 
@@ -22,8 +21,6 @@ export class KycService {
   constructor(
     @InjectRepository(KycCase)
     private readonly kycCaseRepo: Repository<KycCase>,
-    @InjectRepository(KycDocument)
-    private readonly kycDocumentRepo: Repository<KycDocument>,
     private readonly configService: ConfigService,
   ) {}
 
@@ -153,7 +150,14 @@ export class KycService {
         .createHmac('sha256', secret)
         .update(JSON.stringify(body))
         .digest('hex');
-      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+
+      const sigBuf = Buffer.from(signature, 'utf8');
+      const expectedBuf = Buffer.from(expectedSig, 'utf8');
+
+      if (
+        sigBuf.length !== expectedBuf.length ||
+        !crypto.timingSafeEqual(sigBuf, expectedBuf)
+      ) {
         throw new BadRequestException('Invalid webhook signature');
       }
 

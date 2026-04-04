@@ -34,7 +34,12 @@ export class NotificationsService {
     if (channel === NotificationChannel.EMAIL && metadata?.['email']) {
       const to = metadata['email'] as string;
       const html = `<h2>${title}</h2><p>${message}</p>`;
-      await this.emailService.sendEmail(to, title, html);
+      // Fire-and-forget: do not block the request on SMTP delivery
+      void this.emailService.sendEmail(to, title, html).catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        // Logger not injected here; use console to avoid circular deps
+        console.error(`[NotificationsService] Failed to send email to ${to}: ${msg}`);
+      });
     }
 
     return saved;

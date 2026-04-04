@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -54,13 +55,16 @@ export class PaymentsController {
 
   @Post('deposit/webhook')
   @ApiOperation({ summary: 'Receive deposit webhook (public)' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleWebhook(
-    @Body() body: unknown,
+    @Req() req: any,
     @Headers('stripe-signature') stripeSignature = '',
     @Headers('x-signature') xSignature = '',
   ) {
+    // rawBody is available because NestFactory is created with { rawBody: true }
+    const rawBody: Buffer = req.rawBody ?? Buffer.alloc(0);
     const signature = stripeSignature || xSignature;
-    return this.paymentsService.handleDepositWebhook(body, signature);
+    return this.paymentsService.handleDepositWebhook(rawBody, signature);
   }
 
   @Post('withdraw/create')
