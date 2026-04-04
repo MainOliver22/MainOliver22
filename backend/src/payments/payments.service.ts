@@ -241,7 +241,7 @@ export class PaymentsService {
     return { items, total, page, limit };
   }
 
-  async handleDepositWebhook(body: unknown, signature: string): Promise<{ received: boolean }> {
+  async handleDepositWebhook(rawBody: Buffer, signature: string): Promise<{ received: boolean }> {
     this.logger.log(`Webhook received. Signature: ${signature}`);
 
     if (!this.stripe) {
@@ -251,18 +251,21 @@ export class PaymentsService {
 
     const webhookSecret = this.configService.get<string>('PAYMENT_STRIPE_WEBHOOK_SECRET');
     if (!webhookSecret) {
-      this.logger.warn('PAYMENT_STRIPE_WEBHOOK_SECRET not set — skipping signature verification');
+      const isDev = this.configService.get<string>('NODE_ENV', 'development') !== 'production';
+      if (!isDev) {
+        throw new BadRequestException('Webhook secret not configured');
+      }
+      this.logger.warn('PAYMENT_STRIPE_WEBHOOK_SECRET not set — skipping signature verification (dev only)');
       return { received: true };
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let event: any;
     try {
-      const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
       event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err) {
       this.logger.error(`Stripe webhook signature verification failed: ${(err as Error).message}`);
-      return { received: false };
+      throw new BadRequestException('Invalid webhook signature');
     }
 
     if (event.type === 'payment_intent.succeeded') {
