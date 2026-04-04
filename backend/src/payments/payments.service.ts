@@ -25,6 +25,8 @@ import { WithdrawalStatus } from '../database/enums/withdrawal-status.enum';
 import { DepositMethod } from '../database/enums/deposit-method.enum';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
+import { AmlService } from '../common/aml.service';
+import { User } from '../database/entities/user.entity';
 
 @Injectable()
 export class PaymentsService {
@@ -44,8 +46,11 @@ export class PaymentsService {
     private readonly transactionRepo: Repository<Transaction>,
     @InjectRepository(LedgerEntry)
     private readonly ledgerEntryRepo: Repository<LedgerEntry>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly ledgerService: LedgerService,
     private readonly configService: ConfigService,
+    private readonly amlService: AmlService,
   ) {
     const stripeKey = this.configService.get<string>('PAYMENT_STRIPE_KEY');
     this.stripe = stripeKey ? (new StripeConstructor(stripeKey) as StripeInstance) : null;
@@ -158,6 +163,20 @@ export class PaymentsService {
   async createWithdrawal(userId: string, dto: CreateWithdrawalDto): Promise<Withdrawal> {
     const asset = await this.assetRepo.findOne({ where: { id: dto.assetId } });
     if (!asset) throw new NotFoundException(`Asset ${dto.assetId} not found`);
+
+    // AML/sanctions screening
+    const addressScreen = this.amlService.screenAddress(dto.toAddress ?? null);
+    if (addressScreen.blocked) {
+      throw new BadRequestException('Withdrawal blocked: sanctions screening failed');
+    }
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (user) {
+      const nameScreen = this.amlService.screenName(user.firstName, user.lastName);
+      if (nameScreen.blocked) {
+        throw new BadRequestException('Withdrawal blocked: sanctions screening failed');
+      }
+    }
 
     const balance = await this.ledgerService.getBalance(userId, dto.assetId);
     if (parseFloat(balance) < parseFloat(dto.amount)) {

@@ -8,6 +8,7 @@ import { Account } from '../database/entities/account.entity';
 import { Transaction } from '../database/entities/transaction.entity';
 import { LedgerEntry } from '../database/entities/ledger-entry.entity';
 import { LedgerModule } from '../ledger/ledger.module';
+import { CommonModule } from '../common/common.module';
 import { BotsService } from './bots.service';
 import { BotsController } from './bots.controller';
 
@@ -23,6 +24,7 @@ import { BotsController } from './bots.controller';
       LedgerEntry,
     ]),
     LedgerModule,
+    CommonModule,
   ],
   providers: [BotsService],
   controllers: [BotsController],

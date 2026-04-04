@@ -21,6 +21,7 @@ import { TradeStatus } from '../database/enums/trade-status.enum';
 import { CreateStrategyDto } from './dto/create-strategy.dto';
 import { CreateInstanceDto } from './dto/create-instance.dto';
 import { MOCK_USD_PRICES } from '../common/mock-prices';
+import { PriceFeedService } from '../common/price-feed.service';
 
 @Injectable()
 export class BotsService {
@@ -40,6 +41,7 @@ export class BotsService {
     @InjectRepository(LedgerEntry)
     private readonly ledgerEntryRepo: Repository<LedgerEntry>,
     private readonly ledgerService: LedgerService,
+    private readonly priceFeedService: PriceFeedService,
   ) {}
 
   async listStrategies(): Promise<BotStrategy[]> {
@@ -218,7 +220,7 @@ export class BotsService {
     const asset = await this.assetRepo.findOne({ where: { symbol: assetSymbol } });
     if (!asset) throw new NotFoundException(`Asset ${assetSymbol} not found`);
 
-    const basePrice = MOCK_USD_PRICES[assetSymbol.toUpperCase()] ?? 100;
+    const basePrice = await this.priceFeedService.getPrice(assetSymbol);
     const volatility = 0.02;
     const price = basePrice * (1 + (Math.random() - 0.5) * volatility);
     const amount = (parseFloat(instance.allocatedAmount) * 0.1) / price;
@@ -278,5 +280,92 @@ export class BotsService {
       { status: BotInstanceStatus.PAUSED },
     );
     return { affected: result.affected ?? 0 };
+  }
+
+  async runBacktest(
+    strategyId: string,
+    assetSymbol: string,
+    days: number,
+    allocatedAmount: number,
+  ): Promise<{
+    strategyId: string;
+    assetSymbol: string;
+    days: number;
+    initialAmount: number;
+    finalAmount: number;
+    pnl: number;
+    pnlPercent: number;
+    tradeCount: number;
+    winRate: number;
+    candles: Array<{ timestamp: string; price: number; action: string; portfolioValue: number }>;
+  }> {
+    const strategy = await this.strategyRepo.findOne({ where: { id: strategyId } });
+    if (!strategy) throw new NotFoundException(`Strategy ${strategyId} not found`);
+
+    const startPrice = await this.priceFeedService.getPrice(assetSymbol);
+    const totalCandles = days * 24;
+    const startTime = Date.now() - totalCandles * 3_600_000;
+
+    let price = startPrice;
+    let cashUsd = allocatedAmount;
+    let assetHeld = 0;
+    let tradeCount = 0;
+    let wins = 0;
+    let lastBuyPrice = 0;
+
+    const candles: Array<{ timestamp: string; price: number; action: string; portfolioValue: number }> = [];
+
+    for (let i = 0; i < totalCandles; i++) {
+      const prevPrice = price;
+      const move = (Math.random() - 0.5) * 2 * 0.02; // ±2%
+      price = price * (1 + move);
+
+      let action = 'HOLD';
+
+      // Simple MA crossover: buy when price rises, sell when price falls
+      if (price > prevPrice && cashUsd > 0) {
+        // BUY: spend all cash
+        assetHeld = cashUsd / price;
+        lastBuyPrice = price;
+        cashUsd = 0;
+        action = 'BUY';
+        tradeCount++;
+      } else if (price < prevPrice && assetHeld > 0) {
+        // SELL: liquidate all assets
+        const proceeds = assetHeld * price;
+        if (price > lastBuyPrice) wins++;
+        cashUsd = proceeds;
+        assetHeld = 0;
+        action = 'SELL';
+        tradeCount++;
+      }
+
+      const portfolioValue = cashUsd + assetHeld * price;
+      candles.push({
+        timestamp: new Date(startTime + i * 3_600_000).toISOString(),
+        price: parseFloat(price.toFixed(4)),
+        action,
+        portfolioValue: parseFloat(portfolioValue.toFixed(2)),
+      });
+    }
+
+    // Liquidate any remaining position at final price
+    const finalAmount = cashUsd + assetHeld * price;
+    const pnl = finalAmount - allocatedAmount;
+    const pnlPercent = (pnl / allocatedAmount) * 100;
+    const winRate = tradeCount > 0 ? (wins / (tradeCount / 2)) * 100 : 0;
+
+    return {
+      strategyId,
+      assetSymbol,
+      days,
+      initialAmount: allocatedAmount,
+      finalAmount: parseFloat(finalAmount.toFixed(2)),
+      pnl: parseFloat(pnl.toFixed(2)),
+      pnlPercent: parseFloat(pnlPercent.toFixed(2)),
+      tradeCount,
+      winRate: parseFloat(winRate.toFixed(2)),
+      candles,
+    };
   }
 }

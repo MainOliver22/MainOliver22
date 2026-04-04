@@ -14,6 +14,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ExchangeModule } from './exchange/exchange.module';
 import { BotsModule } from './bots/bots.module';
 import { AdminModule } from './admin/admin.module';
+import { CommonModule } from './common/common.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -58,6 +59,7 @@ import {
     ExchangeModule,
     BotsModule,
     AdminModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],
