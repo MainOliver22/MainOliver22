@@ -62,6 +62,7 @@ export default function DepositPage() {
                   <option value="BANK_TRANSFER">Bank Transfer</option>
                   <option value="CARD">Credit/Debit Card</option>
                   <option value="CRYPTO">Crypto</option>
+                  <option value="ONRAMP">Fiat On-Ramp</option>
                 </select>
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}
