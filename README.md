@@ -78,11 +78,19 @@ cd frontend && npm install && npm run dev
 ## API Highlights
 
 - `POST /api/auth/register` - Register
-- `POST /api/auth/login` - Login (returns JWT + refresh token)
+- `POST /api/auth/login` - Login (returns JWT + refresh token, or `requires2fa` flag)
+- `POST /api/auth/2fa/enable` - Enable TOTP 2FA (returns secret + otpauth URL)
+- `POST /api/auth/2fa/confirm` - Confirm 2FA setup with first TOTP code
+- `POST /api/auth/2fa/verify` - Complete 2FA login with TOTP code
+- `POST /api/kyc/start` - Start KYC (Onfido applicant + SDK token)
+- `POST /api/kyc/webhook` - KYC provider webhook (HMAC-verified)
 - `GET /api/portfolio/balances` - User balances
-- `POST /api/deposit/create` - Create deposit
-- `POST /api/exchange/quote` - Get exchange quote (30s expiry)
+- `POST /api/deposit/create` - Create deposit (Stripe PaymentIntent for CARD method)
+- `POST /api/payments/webhook` - Stripe payment webhook (HMAC-verified)
+- `POST /api/wallet/verify` - Verify wallet ownership via SIWE signature
+- `POST /api/exchange/quote` - Get exchange quote (30s expiry, live Binance prices)
 - `POST /api/exchange/execute` - Execute exchange
+- `GET /api/bots/backtest` - Run strategy backtest with candle simulation
 - `POST /api/bots/create-instance` - Start a bot
 - `POST /api/admin/bots/kill-switch` - Stop all bots globally
 - Full Swagger docs at `/api/docs`
@@ -91,15 +99,16 @@ cd frontend && npm install && npm run dev
 
 - [x] JWT auth with rotating refresh tokens
 - [x] 8-role RBAC with guards and decorators on every endpoint
-- [x] KYC flow: user-initiated, webhook-driven, admin approve/reject
-- [x] WalletConnect wallet management
+- [x] TOTP two-factor authentication (enable/confirm/disable/login enforcement)
+- [x] KYC flow: Onfido applicant creation, SDK token, HMAC-verified webhook, admin approve/reject
+- [x] WalletConnect wallet management with SIWE signature verification
 - [x] Multi-asset support (USD, BTC, ETH, USDT, USDC, BNB, SOL, ADA, XRP, DOGE — extensible)
 - [x] Double-entry ledger with pessimistic DB locking
-- [x] Deposits and withdrawals (with admin approval for large amounts)
-- [x] Asset exchange: quote (30s expiry) + execute with fee/spread
-- [x] Bot trading: strategy marketplace, instance lifecycle, global kill switch
+- [x] Deposits (Stripe PaymentIntent for card) and withdrawals with AML/sanctions screening
+- [x] Asset exchange: live Binance price feed (60s cache, mock fallback), quote (30s expiry) + execute with fee/spread
+- [x] Bot trading: strategy marketplace, instance lifecycle, backtesting, global kill switch
 - [x] Immutable audit log (append-only, indexed by actor/action/target)
-- [x] In-app notifications with read tracking
+- [x] In-app + email notifications (nodemailer SMTP) with read tracking
 - [x] Admin panel: KPIs, user management, KYC queue, audit log viewer
 - [x] Swagger/OpenAPI at `/api/docs`
 - [x] Docker Compose: Postgres 15, Redis 7, backend, frontend, Adminer
@@ -108,21 +117,24 @@ cd frontend && npm install && npm run dev
 
 - bcrypt password hashing (12 rounds)
 - JWT access tokens (15m) + rotating refresh tokens (30d)
+- TOTP two-factor authentication via `otplib`
 - CORS restricted to `FRONTEND_URL`
 - Helmet HTTP security headers
 - Rate limiting: 100 req / 60s per IP
 - Immutable audit log for all privileged admin actions
 - Atomic balance transfers with pessimistic row-level DB locks
+- Stripe + Onfido webhook HMAC-SHA256 signature verification
+- AML/sanctions screening on every withdrawal (address + name)
 
 ## Phase 2 Roadmap
 
-- [ ] Real KYC provider (Sumsub/Onfido) with HMAC webhook verification
-- [ ] Real payment providers (Stripe, ACH, bank transfer reconciliation)
-- [ ] WalletConnect v2 on-chain signature verification
-- [ ] TOTP two-factor authentication
-- [ ] Email/SMS notifications (SMTP, Twilio)
-- [ ] Bot backtesting and simulation mode
-- [ ] External exchange connectors (Binance/Bybit REST + WebSocket)
-- [ ] AML/sanctions screening on withdrawals
+- [x] Real KYC provider (Onfido) with HMAC-SHA256 webhook verification
+- [x] Real payment provider (Stripe) deposit intent + HMAC webhook verification
+- [x] WalletConnect v2 on-chain SIWE signature verification
+- [x] TOTP two-factor authentication (enable / confirm / disable / login enforcement)
+- [x] Email notifications via SMTP (nodemailer, fire-and-forget)
+- [x] Bot backtesting and simulation mode (`GET /bots/backtest` with candle data + PnL)
+- [x] Binance live price feed (public REST, 60s TTL cache, mock fallback)
+- [x] AML/sanctions screening on withdrawals (address + name check before fund lock)
 - [x] GitHub Actions CI/CD pipeline
 - [x] TypeORM migrations (replace `synchronize: true` for production)
