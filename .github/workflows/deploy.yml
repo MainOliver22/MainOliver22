@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -22,7 +22,8 @@ jobs:
           script: |
             set -e
             cd ~/MainOliver22
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             docker compose pull --quiet || true
             docker compose up -d --build --remove-orphans
             docker image prune -f
