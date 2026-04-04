@@ -134,7 +134,7 @@ export class AuthService {
     if (!user) throw new NotFoundException('User not found');
 
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(user.email, 'Rich Boy Tech', secret);
+    const otpauthUrl = authenticator.keyuri(user.email, 'qfx-finance.com', secret);
 
     user.twoFactorSecret = secret;
     user.twoFactorEnabled = false; // not yet confirmed
