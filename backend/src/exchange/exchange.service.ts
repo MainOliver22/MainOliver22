@@ -17,26 +17,7 @@ import { TransactionType } from '../database/enums/transaction-type.enum';
 import { ExchangeOrderStatus } from '../database/enums/exchange-order-status.enum';
 import { QuoteExchangeDto } from './dto/quote-exchange.dto';
 import { ExecuteExchangeDto } from './dto/execute-exchange.dto';
-
-/** Mock rates against USD */
-const MOCK_USD_PRICES: Record<string, number> = {
-  BTC: 40000,
-  ETH: 2500,
-  USDT: 1,
-  USDC: 1,
-  USD: 1,
-  BNB: 320,
-  SOL: 100,
-  ADA: 0.5,
-  DOT: 7,
-  MATIC: 0.8,
-};
-
-function getMockRate(fromSymbol: string, toSymbol: string): number {
-  const fromPrice = MOCK_USD_PRICES[fromSymbol.toUpperCase()] ?? 1;
-  const toPrice = MOCK_USD_PRICES[toSymbol.toUpperCase()] ?? 1;
-  return fromPrice / toPrice;
-}
+import { getMockRate } from '../common/mock-prices';
 
 @Injectable()
 export class ExchangeService {
