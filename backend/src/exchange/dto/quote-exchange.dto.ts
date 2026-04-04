@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumberString, IsUUID } from 'class-validator';
+import { IsNumberString, IsUUID, Matches } from 'class-validator';
 
 export class QuoteExchangeDto {
   @ApiProperty({ description: 'Source asset UUID' })
@@ -10,7 +10,8 @@ export class QuoteExchangeDto {
   @IsUUID()
   toAssetId!: string;
 
-  @ApiProperty({ description: 'Amount to convert (numeric string)' })
+  @ApiProperty({ description: 'Amount to convert (positive numeric string, e.g. "0.5")' })
   @IsNumberString()
+  @Matches(/^\d+(\.\d+)?$/, { message: 'fromAmount must be a positive, non-zero numeric string' })
   fromAmount!: string;
 }

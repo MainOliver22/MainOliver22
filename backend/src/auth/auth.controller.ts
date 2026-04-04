@@ -48,8 +48,8 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout and revoke refresh token' })
-  logout(@Body() dto: RefreshTokenDto) {
-    return this.authService.logout(dto.refreshToken);
+  logout(@CurrentUser() user: User, @Body() dto: RefreshTokenDto) {
+    return this.authService.logout(user.id, dto.refreshToken);
   }
 
   @Get('me')

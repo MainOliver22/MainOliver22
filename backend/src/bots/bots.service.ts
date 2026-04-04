@@ -68,46 +68,52 @@ export class BotsService {
     if (!strategy) throw new NotFoundException(`Strategy ${dto.strategyId} not found`);
     if (!strategy.isActive) throw new BadRequestException('Strategy is not active');
 
-    // Check balance against first allowed asset (or use USDC as default)
+    // Require at least one allowed asset to ensure funds can be checked and locked
     const allowedAssetSymbols = strategy.allowedAssets;
-    let assetId: string | undefined;
-    if (allowedAssetSymbols.length > 0) {
-      const asset = await this.assetRepo.findOne({ where: { symbol: allowedAssetSymbols[0] } });
-      assetId = asset?.id;
+    if (!allowedAssetSymbols || allowedAssetSymbols.length === 0) {
+      throw new BadRequestException(
+        `Strategy ${strategy.name} has no allowed assets configured. Cannot lock funds.`,
+      );
     }
 
-    if (assetId) {
-      const balance = await this.ledgerService.getBalance(userId, assetId);
-      if (parseFloat(balance) < parseFloat(dto.allocatedAmount)) {
-        throw new BadRequestException(
-          `Insufficient balance. Available: ${balance}`,
-        );
-      }
-
-      // Lock allocated funds
-      const availableAccount = await this.ledgerService.getOrCreateAccount(
-        userId,
-        assetId,
-        AccountType.USER_AVAILABLE,
+    const asset = await this.assetRepo.findOne({ where: { symbol: allowedAssetSymbols[0] } });
+    if (!asset) {
+      throw new BadRequestException(
+        `Asset "${allowedAssetSymbols[0]}" required by strategy ${strategy.name} not found`,
       );
-      const lockedAccount = await this.ledgerService.getOrCreateAccount(
-        userId,
-        assetId,
-        AccountType.USER_LOCKED,
-      );
-      const lockTx = await this.ledgerService.createTransaction(
-        TransactionType.TRANSFER,
-        `Bot allocation lock for strategy ${strategy.name}`,
-      );
-      await this.ledgerService.transfer({
-        fromAccountId: availableAccount.id,
-        toAccountId: lockedAccount.id,
-        amount: dto.allocatedAmount,
-        transactionId: lockTx.id,
-        description: `Bot instance fund lock`,
-      });
-      await this.ledgerService.completeTransaction(lockTx.id);
     }
+    const assetId = asset.id;
+
+    const balance = await this.ledgerService.getBalance(userId, assetId);
+    if (parseFloat(balance) < parseFloat(dto.allocatedAmount)) {
+      throw new BadRequestException(
+        `Insufficient balance. Available: ${balance}`,
+      );
+    }
+
+    // Lock allocated funds
+    const availableAccount = await this.ledgerService.getOrCreateAccount(
+      userId,
+      assetId,
+      AccountType.USER_AVAILABLE,
+    );
+    const lockedAccount = await this.ledgerService.getOrCreateAccount(
+      userId,
+      assetId,
+      AccountType.USER_LOCKED,
+    );
+    const lockTx = await this.ledgerService.createTransaction(
+      TransactionType.TRANSFER,
+      `Bot allocation lock for strategy ${strategy.name}`,
+    );
+    await this.ledgerService.transfer({
+      fromAccountId: availableAccount.id,
+      toAccountId: lockedAccount.id,
+      amount: dto.allocatedAmount,
+      transactionId: lockTx.id,
+      description: `Bot instance fund lock`,
+    });
+    await this.ledgerService.completeTransaction(lockTx.id);
 
     const instance = this.instanceRepo.create({
       userId,

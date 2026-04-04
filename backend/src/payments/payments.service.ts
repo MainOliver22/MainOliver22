@@ -62,10 +62,21 @@ export class PaymentsService {
 
     // If Stripe is configured and the deposit method is CARD, create a PaymentIntent
     if (this.stripe && dto.method === DepositMethod.CARD) {
+      // Stripe only supports ISO fiat currency codes (e.g. usd, eur, gbp).
+      // Crypto asset symbols (btc, eth, etc.) will be rejected by Stripe.
+      const SUPPORTED_FIAT_CURRENCIES = new Set(['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy', 'chf', 'sgd']);
+      const stripeCurrency = asset.symbol.toLowerCase();
+      if (!SUPPORTED_FIAT_CURRENCIES.has(stripeCurrency)) {
+        throw new BadRequestException(
+          `Card deposits are only supported for fiat currencies (${[...SUPPORTED_FIAT_CURRENCIES].join(', ')}). ` +
+          `Asset "${asset.symbol}" is not a supported Stripe currency.`,
+        );
+      }
+
       const amountCents = Math.round(parseFloat(dto.amount) * 100);
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount: amountCents,
-        currency: asset.symbol.toLowerCase(),
+        currency: stripeCurrency,
         metadata: { userId, assetId: dto.assetId, amount: dto.amount },
       });
 
@@ -323,7 +334,10 @@ export class PaymentsService {
   }
 
   async approveWithdrawal(withdrawalId: string, adminUserId: string): Promise<Withdrawal> {
-    const withdrawal = await this.withdrawalRepo.findOne({ where: { id: withdrawalId } });
+    const withdrawal = await this.withdrawalRepo.findOne({
+      where: { id: withdrawalId },
+      relations: ['asset'],
+    });
     if (!withdrawal) throw new NotFoundException(`Withdrawal ${withdrawalId} not found`);
 
     await this.withdrawalRepo.update(withdrawalId, {
@@ -331,6 +345,32 @@ export class PaymentsService {
       approvedBy: adminUserId,
       approvedAt: new Date(),
     });
+
+    // Transfer funds from USER_LOCKED to SYSTEM_HOT_WALLET to actually debit the user.
+    // createWithdrawal() already moved funds into USER_LOCKED; approval finalises the settlement.
+    const lockedAccount = await this.ledgerService.getOrCreateAccount(
+      withdrawal.userId,
+      withdrawal.assetId,
+      AccountType.USER_LOCKED,
+    );
+    const hotWalletAccount = await this.ledgerService.getOrCreateAccount(
+      null,
+      withdrawal.assetId,
+      AccountType.SYSTEM_HOT_WALLET,
+    );
+    const settleTx = await this.ledgerService.createTransaction(
+      TransactionType.WITHDRAWAL,
+      `Withdrawal settlement for withdrawal ${withdrawalId}`,
+    );
+    await this.ledgerService.transfer({
+      fromAccountId: lockedAccount.id,
+      toAccountId: hotWalletAccount.id,
+      amount: withdrawal.amount,
+      transactionId: settleTx.id,
+      description: `Approved withdrawal ${withdrawalId}`,
+    });
+    await this.ledgerService.completeTransaction(settleTx.id);
+
     await this.withdrawalRepo.update(withdrawalId, { status: WithdrawalStatus.COMPLETED });
 
     if (withdrawal.transactionId) {

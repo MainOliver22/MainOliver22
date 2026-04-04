@@ -139,20 +139,30 @@ export class KycService {
     return kycCase;
   }
 
-  async handleWebhook(body: Record<string, unknown>, signature: string) {
+  async handleWebhook(rawBody: Buffer, signature: string) {
     this.logger.log(`KYC webhook received: signature=${signature}`);
 
     const secret = this.webhookSecret;
 
+    // Parse the body from raw bytes for business logic
+    let body: Record<string, unknown>;
+    try {
+      body = JSON.parse(rawBody.toString('utf8')) as Record<string, unknown>;
+    } catch {
+      throw new BadRequestException('Invalid webhook payload: not valid JSON');
+    }
+
     if (secret) {
       // Verify HMAC-SHA256 signature from X-SHA2-Signature header
+      // Use the raw body bytes (not re-serialised JSON) to match what Onfido signed
       const expectedSig = crypto
         .createHmac('sha256', secret)
-        .update(JSON.stringify(body))
+        .update(rawBody)
         .digest('hex');
 
-      const sigBuf = Buffer.from(signature, 'utf8');
-      const expectedBuf = Buffer.from(expectedSig, 'utf8');
+      // Compare as hex strings using constant-time comparison (same length guaranteed by hex encoding)
+      const sigBuf = Buffer.from(signature, 'hex');
+      const expectedBuf = Buffer.from(expectedSig, 'hex');
 
       if (
         sigBuf.length !== expectedBuf.length ||

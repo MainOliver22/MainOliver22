@@ -34,7 +34,10 @@ export class AmlService {
       return { blocked: false };
     }
 
-    const normalised = address.trim().toLowerCase();
+    const trimmed = address.trim();
+    // EVM (0x…) addresses are case-insensitive hex — normalise to lowercase for comparison.
+    // Bitcoin/non-EVM addresses use case-sensitive base58/bech32 encoding — preserve case.
+    const normalised = trimmed.startsWith('0x') ? trimmed.toLowerCase() : trimmed;
     if (SANCTIONED_ADDRESSES.has(normalised)) {
       this.logger.warn(`AML: Blocked sanctioned address ${address}`);
       return { blocked: true, reason: 'Address appears on OFAC sanctions list' };
