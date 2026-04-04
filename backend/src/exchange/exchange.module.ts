@@ -6,6 +6,7 @@ import { Account } from '../database/entities/account.entity';
 import { Transaction } from '../database/entities/transaction.entity';
 import { LedgerEntry } from '../database/entities/ledger-entry.entity';
 import { LedgerModule } from '../ledger/ledger.module';
+import { CommonModule } from '../common/common.module';
 import { ExchangeService } from './exchange.service';
 import { ExchangeController } from './exchange.controller';
 
@@ -13,6 +14,7 @@ import { ExchangeController } from './exchange.controller';
   imports: [
     TypeOrmModule.forFeature([ExchangeOrder, Asset, Account, Transaction, LedgerEntry]),
     LedgerModule,
+    CommonModule,
   ],
   providers: [ExchangeService],
   controllers: [ExchangeController],

@@ -17,7 +17,7 @@ import { TransactionType } from '../database/enums/transaction-type.enum';
 import { ExchangeOrderStatus } from '../database/enums/exchange-order-status.enum';
 import { QuoteExchangeDto } from './dto/quote-exchange.dto';
 import { ExecuteExchangeDto } from './dto/execute-exchange.dto';
-import { getMockRate } from '../common/mock-prices';
+import { PriceFeedService } from '../common/price-feed.service';
 
 @Injectable()
 export class ExchangeService {
@@ -33,6 +33,7 @@ export class ExchangeService {
     @InjectRepository(LedgerEntry)
     private readonly ledgerEntryRepo: Repository<LedgerEntry>,
     private readonly ledgerService: LedgerService,
+    private readonly priceFeedService: PriceFeedService,
   ) {}
 
   async getQuote(userId: string, dto: QuoteExchangeDto): Promise<ExchangeOrder> {
@@ -43,7 +44,7 @@ export class ExchangeService {
     if (!fromAsset) throw new NotFoundException(`Asset ${dto.fromAssetId} not found`);
     if (!toAsset) throw new NotFoundException(`Asset ${dto.toAssetId} not found`);
 
-    const baseRate = getMockRate(fromAsset.symbol, toAsset.symbol);
+    const baseRate = await this.priceFeedService.getMockRate(fromAsset.symbol, toAsset.symbol);
     const spreadPct = 0.005; // 0.5%
     const feePct = 0.001;    // 0.1%
 

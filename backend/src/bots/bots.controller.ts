@@ -29,6 +29,28 @@ import { CreateInstanceDto } from './dto/create-instance.dto';
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
+  @Get('bots/backtest')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Run a strategy backtest against simulated price data' })
+  @ApiQuery({ name: 'strategyId', required: true, type: String })
+  @ApiQuery({ name: 'assetSymbol', required: true, type: String })
+  @ApiQuery({ name: 'days', required: false, type: Number })
+  @ApiQuery({ name: 'allocatedAmount', required: false, type: String })
+  runBacktest(
+    @Query('strategyId') strategyId: string,
+    @Query('assetSymbol') assetSymbol: string,
+    @Query('days') days = 30,
+    @Query('allocatedAmount') allocatedAmount = '1000',
+  ) {
+    return this.botsService.runBacktest(
+      strategyId,
+      assetSymbol,
+      Number(days),
+      parseFloat(allocatedAmount),
+    );
+  }
+
   @Get('bots/strategies')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
