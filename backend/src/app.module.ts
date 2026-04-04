@@ -43,7 +43,7 @@ import {
         ],
         synchronize: config.get<string>('NODE_ENV', 'development') === 'development',
         logging: config.get<string>('NODE_ENV', 'development') === 'development',
-        ssl: config.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: config.get<string>('NODE_ENV') === 'production' ? true : false,
       }),
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
