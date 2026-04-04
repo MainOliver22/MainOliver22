@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const StripeConstructor = require('stripe');
+import type { Stripe as StripeInstance } from 'stripe';
 import {
   BadRequestException,
   Injectable,
@@ -7,6 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 import { Deposit } from '../database/entities/deposit.entity';
 import { Withdrawal } from '../database/entities/withdrawal.entity';
 import { Asset } from '../database/entities/asset.entity';
@@ -18,12 +22,14 @@ import { AccountType } from '../database/enums/account-type.enum';
 import { TransactionType } from '../database/enums/transaction-type.enum';
 import { DepositStatus } from '../database/enums/deposit-status.enum';
 import { WithdrawalStatus } from '../database/enums/withdrawal-status.enum';
+import { DepositMethod } from '../database/enums/deposit-method.enum';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
+  private readonly stripe: StripeInstance | null;
 
   constructor(
     @InjectRepository(Deposit)
@@ -39,11 +45,47 @@ export class PaymentsService {
     @InjectRepository(LedgerEntry)
     private readonly ledgerEntryRepo: Repository<LedgerEntry>,
     private readonly ledgerService: LedgerService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    const stripeKey = this.configService.get<string>('PAYMENT_STRIPE_KEY');
+    this.stripe = stripeKey ? (new StripeConstructor(stripeKey) as StripeInstance) : null;
+  }
 
   async createDeposit(userId: string, dto: CreateDepositDto): Promise<Deposit> {
     const asset = await this.assetRepo.findOne({ where: { id: dto.assetId } });
     if (!asset) throw new NotFoundException(`Asset ${dto.assetId} not found`);
+
+    // If Stripe is configured and the deposit method is CARD, create a PaymentIntent
+    if (this.stripe && dto.method === DepositMethod.CARD) {
+      const amountCents = Math.round(parseFloat(dto.amount) * 100);
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: amountCents,
+        currency: asset.symbol.toLowerCase(),
+        metadata: { userId, assetId: dto.assetId, amount: dto.amount },
+      });
+
+      const tx = await this.ledgerService.createTransaction(
+        TransactionType.DEPOSIT,
+        `Card deposit of ${dto.amount} ${asset.symbol}`,
+        { method: dto.method, paymentIntentId: paymentIntent.id },
+        uuid(),
+      );
+
+      const deposit = this.depositRepo.create({
+        userId,
+        assetId: dto.assetId,
+        transactionId: tx.id,
+        amount: dto.amount,
+        method: dto.method,
+        provider: 'stripe',
+        externalId: paymentIntent.id,
+        metadata: { ...(dto.metadata ?? {}), paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret },
+        status: DepositStatus.PENDING,
+      });
+      await this.depositRepo.save(deposit);
+
+      return this.depositRepo.findOne({ where: { id: deposit.id }, relations: ['asset'] }) as Promise<Deposit>;
+    }
 
     const tx = await this.ledgerService.createTransaction(
       TransactionType.DEPOSIT,
@@ -180,8 +222,81 @@ export class PaymentsService {
     return { items, total, page, limit };
   }
 
-  handleDepositWebhook(body: unknown, signature: string): { received: boolean } {
-    this.logger.log(`Webhook received. Signature: ${signature}, body: ${JSON.stringify(body)}`);
+  async handleDepositWebhook(body: unknown, signature: string): Promise<{ received: boolean }> {
+    this.logger.log(`Webhook received. Signature: ${signature}`);
+
+    if (!this.stripe) {
+      this.logger.warn('PAYMENT_STRIPE_KEY not set — ignoring deposit webhook');
+      return { received: true };
+    }
+
+    const webhookSecret = this.configService.get<string>('PAYMENT_STRIPE_WEBHOOK_SECRET');
+    if (!webhookSecret) {
+      this.logger.warn('PAYMENT_STRIPE_WEBHOOK_SECRET not set — skipping signature verification');
+      return { received: true };
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let event: any;
+    try {
+      const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
+      event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    } catch (err) {
+      this.logger.error(`Stripe webhook signature verification failed: ${(err as Error).message}`);
+      return { received: false };
+    }
+
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object as { id: string; client_secret: string | null };
+      const deposit = await this.depositRepo.findOne({
+        where: { externalId: paymentIntent.id },
+        relations: ['asset'],
+      });
+
+      if (deposit && deposit.status === DepositStatus.PENDING) {
+        const asset = deposit.asset;
+
+        // Credit user account
+        const systemAccount = await this.ledgerService.getOrCreateAccount(
+          null,
+          deposit.assetId,
+          AccountType.SYSTEM_HOT_WALLET,
+        );
+        const userAccount = await this.ledgerService.getOrCreateAccount(
+          deposit.userId,
+          deposit.assetId,
+          AccountType.USER_AVAILABLE,
+        );
+
+        const sysBalance = parseFloat(systemAccount.balance);
+        const depositAmount = parseFloat(deposit.amount);
+        if (sysBalance < depositAmount) {
+          await this.accountRepo.update(systemAccount.id, {
+            balance: (sysBalance + depositAmount * 10).toFixed(8),
+          });
+        }
+
+        const tx = await this.ledgerService.createTransaction(
+          TransactionType.DEPOSIT,
+          `Stripe card deposit confirmed: ${deposit.amount} ${asset?.symbol ?? ''}`,
+          { paymentIntentId: paymentIntent.id },
+          uuid(),
+        );
+
+        await this.ledgerService.transfer({
+          fromAccountId: systemAccount.id,
+          toAccountId: userAccount.id,
+          amount: deposit.amount,
+          transactionId: tx.id,
+          description: `Stripe deposit credit for user ${deposit.userId}`,
+        });
+
+        await this.depositRepo.update(deposit.id, { status: DepositStatus.CONFIRMED });
+        await this.ledgerService.completeTransaction(tx.id);
+        this.logger.log(`Stripe deposit ${deposit.id} confirmed for user ${deposit.userId}`);
+      }
+    }
+
     return { received: true };
   }
 

@@ -31,6 +31,9 @@ export class Wallet {
   @Column({ type: 'boolean', default: false })
   isDefault!: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isVerified!: boolean;
+
   @Column({ type: 'enum', enum: WalletConnection })
   connectedVia!: WalletConnection;
 

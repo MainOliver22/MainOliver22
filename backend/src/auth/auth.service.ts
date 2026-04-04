@@ -1,6 +1,6 @@
 import type { StringValue } from 'ms';
 import {
-  Injectable, ConflictException, UnauthorizedException,
+  Injectable, ConflictException, UnauthorizedException, NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../database/entities/user.entity';
-import { RefreshToken } from '../database/entities/session.entity';
+import { authenticator } from 'otplib';
+import { User } from '../database/entities/user.entity';import { RefreshToken } from '../database/entities/session.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserRole } from '../database/enums/user-role.enum';
@@ -54,6 +54,48 @@ export class AuthService {
       throw new UnauthorizedException('Account suspended or frozen');
     }
 
+    // If 2FA is enabled, return a short-lived temp token instead of full JWT
+    if (user.twoFactorEnabled) {
+      const tempToken = this.jwtService.sign(
+        { sub: user.id, twoFaPending: true },
+        { expiresIn: '5m' },
+      );
+      return { requires2fa: true, tempToken };
+    }
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+    await this.storeRefreshToken(user.id, refreshToken, ipAddress, deviceInfo);
+
+    return { accessToken, refreshToken, user: this.sanitizeUser(user) };
+  }
+
+  async verify2faLogin(
+    tempToken: string,
+    totpCode: string,
+    ipAddress?: string,
+    deviceInfo?: string,
+  ) {
+    let payload: { sub: string; twoFaPending?: boolean };
+    try {
+      payload = this.jwtService.verify<{ sub: string; twoFaPending?: boolean }>(tempToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired temp token');
+    }
+
+    if (!payload.twoFaPending) {
+      throw new UnauthorizedException('Token is not a 2FA pending token');
+    }
+
+    const user = await this.userRepo.findOne({ where: { id: payload.sub } });
+    if (!user || !user.twoFactorSecret) {
+      throw new UnauthorizedException('User not found or 2FA not configured');
+    }
+
+    const isValid = authenticator.verify({ token: totpCode, secret: user.twoFactorSecret });
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid TOTP code');
+    }
+
     const { accessToken, refreshToken } = await this.generateTokens(user);
     await this.storeRefreshToken(user.id, refreshToken, ipAddress, deviceInfo);
 
@@ -85,6 +127,49 @@ export class AuthService {
       await this.sessionRepo.save(session);
     }
     return { message: 'Logged out successfully' };
+  }
+
+  async enable2fa(userId: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(user.email, 'InvestmentPlatform', secret);
+
+    user.twoFactorSecret = secret;
+    user.twoFactorEnabled = false; // not yet confirmed
+    await this.userRepo.save(user);
+
+    return { secret, otpauthUrl };
+  }
+
+  async confirm2fa(userId: string, token: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user || !user.twoFactorSecret) {
+      throw new NotFoundException('User not found or 2FA not initialized');
+    }
+
+    const isValid = authenticator.verify({ token, secret: user.twoFactorSecret });
+    if (!isValid) throw new UnauthorizedException('Invalid TOTP token');
+
+    user.twoFactorEnabled = true;
+    await this.userRepo.save(user);
+    return { message: '2FA enabled successfully' };
+  }
+
+  async disable2fa(userId: string, token: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user || !user.twoFactorSecret) {
+      throw new NotFoundException('User not found or 2FA not configured');
+    }
+
+    const isValid = authenticator.verify({ token, secret: user.twoFactorSecret });
+    if (!isValid) throw new UnauthorizedException('Invalid TOTP token');
+
+    user.twoFactorEnabled = false;
+    user.twoFactorSecret = null;
+    await this.userRepo.save(user);
+    return { message: '2FA disabled successfully' };
   }
 
   private async generateTokens(user: User) {

@@ -8,12 +8,18 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiProperty } from '@nestjs/swagger';
 import { WalletsService } from './wallets.service';
 import { ConnectWalletDto } from './dto/connect-wallet.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../database/entities/user.entity';
+
+class VerifyWalletDto {
+  @ApiProperty() address!: string;
+  @ApiProperty() message!: string;
+  @ApiProperty() signature!: string;
+}
 
 @ApiTags('Wallets')
 @UseGuards(JwtAuthGuard)
@@ -44,5 +50,11 @@ export class WalletsController {
   @ApiOperation({ summary: 'Set a wallet as default' })
   setDefault(@CurrentUser() user: User, @Param('id') walletId: string) {
     return this.walletsService.setDefault(user.id, walletId);
+  }
+
+  @Post('verify')
+  @ApiOperation({ summary: 'Verify wallet ownership via SIWE signature' })
+  verifyWallet(@CurrentUser() user: User, @Body() dto: VerifyWalletDto) {
+    return this.walletsService.verifyWallet(user.id, dto.address, dto.message, dto.signature);
   }
 }
