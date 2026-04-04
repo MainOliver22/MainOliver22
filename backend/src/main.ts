@@ -24,8 +24,8 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('Investment Platform API')
-    .setDescription('Full-stack investment platform with WalletConnect, bot trading, exchange, and KYC')
+    .setTitle('Rich Boy Tech API')
+    .setDescription('Rich Boy Tech — CFD Trading platform with bot trading, exchange, KYC, and wallet management')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

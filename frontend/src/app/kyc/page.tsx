@@ -19,8 +19,9 @@ export default function KycPage() {
     setStarting(true);
     try {
       const res = await api.post('/kyc/start', { level: 'BASIC' });
-      setKycCase(res.data.kycCase);
       if (res.data.redirectUrl) window.open(res.data.redirectUrl, '_blank');
+      // Refresh status after starting KYC
+      api.get('/kyc/status').then(r => setKycCase(r.data)).catch(() => {});
     } finally {
       setStarting(false);
     }

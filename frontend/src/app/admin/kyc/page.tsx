@@ -15,7 +15,7 @@ export default function AdminKycPage() {
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [reason, setReason] = useState('');
 
-  const fetchCases = () => { api.get('/admin/kyc?page=1&limit=50').then(r => setCases(r.data.cases || [])); };
+  const fetchCases = () => { api.get('/admin/kyc?page=1&limit=50').then(r => setCases(r.data.items || [])); };
   useEffect(() => { fetchCases(); }, []);
 
   const approve = async (id: string) => { await api.patch(`/admin/kyc/${id}/approve`); fetchCases(); };
