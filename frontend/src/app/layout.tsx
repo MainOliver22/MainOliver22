@@ -3,8 +3,8 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Investment Platform",
-  description: "Full-stack investment platform with bot trading, exchange, and KYC",
+  title: "qfx-finance.com",
+  description: "CFD Trading on Stocks, Gold, Oil, Indices with ultra-fast execution",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

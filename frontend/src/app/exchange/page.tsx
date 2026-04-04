@@ -26,7 +26,7 @@ export default function ExchangePage() {
       if (r.data[0]) setFromAssetId(r.data[0].id);
       if (r.data[1]) setToAssetId(r.data[1].id);
     });
-    api.get('/exchange/history').then(r => setHistory(r.data.orders || []));
+    api.get('/exchange/history').then(r => setHistory(r.data.items || []));
   }, []);
 
   const getQuote = async () => {
@@ -50,7 +50,7 @@ export default function ExchangePage() {
       await api.post('/exchange/execute', { quoteId: quote.id });
       setQuote(null); setFromAmount('');
       const r = await api.get('/exchange/history');
-      setHistory(r.data.orders || []);
+      setHistory(r.data.items || []);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };
       setError(e?.response?.data?.message || 'Exchange failed');

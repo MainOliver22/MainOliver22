@@ -18,8 +18,8 @@ export default function BotsPage() {
   const [error, setError] = useState('');
 
   const fetchData = () => {
-    api.get('/bots/strategies').then(r => setStrategies(r.data.strategies || []));
-    api.get('/bots/instances').then(r => setInstances(r.data.instances || []));
+    api.get('/bots/strategies').then(r => setStrategies(r.data || []));
+    api.get('/bots/instances').then(r => setInstances(r.data || []));
   };
 
   useEffect(() => { fetchData(); }, []);

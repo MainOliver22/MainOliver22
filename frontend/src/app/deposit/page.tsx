@@ -20,7 +20,7 @@ export default function DepositPage() {
 
   useEffect(() => {
     api.get('/assets').then(r => { setAssets(r.data); if (r.data[0]) setAssetId(r.data[0].id); });
-    api.get('/deposit/history').then(r => setDeposits(r.data.deposits || []));
+    api.get('/deposit/history').then(r => setDeposits(r.data.items || []));
   }, []);
 
   const handleDeposit = async () => {
@@ -30,7 +30,7 @@ export default function DepositPage() {
       await api.post('/deposit/create', { assetId, amount, method });
       setSuccess('Deposit created successfully!');
       const r = await api.get('/deposit/history');
-      setDeposits(r.data.deposits || []);
+      setDeposits(r.data.items || []);
       setAmount('');
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };
