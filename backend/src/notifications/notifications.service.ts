@@ -4,11 +4,13 @@ import { Repository } from 'typeorm';
 import { Notification } from '../database/entities/notification.entity';
 import { NotificationType } from '../database/enums/notification-type.enum';
 import { NotificationChannel } from '../database/enums/notification-channel.enum';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification) private notifRepo: Repository<Notification>,
+    private readonly emailService: EmailService,
   ) {}
 
   async create(
@@ -27,7 +29,15 @@ export class NotificationsService {
       channel,
       metadata: metadata ?? null,
     });
-    return this.notifRepo.save(notif);
+    const saved = await this.notifRepo.save(notif);
+
+    if (channel === NotificationChannel.EMAIL && metadata?.['email']) {
+      const to = metadata['email'] as string;
+      const html = `<h2>${title}</h2><p>${message}</p>`;
+      await this.emailService.sendEmail(to, title, html);
+    }
+
+    return saved;
   }
 
   async findForUser(userId: string, page = 1, limit = 20) {

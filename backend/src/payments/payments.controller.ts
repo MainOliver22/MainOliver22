@@ -56,8 +56,10 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Receive deposit webhook (public)' })
   handleWebhook(
     @Body() body: unknown,
-    @Headers('x-signature') signature = '',
+    @Headers('stripe-signature') stripeSignature = '',
+    @Headers('x-signature') xSignature = '',
   ) {
+    const signature = stripeSignature || xSignature;
     return this.paymentsService.handleDepositWebhook(body, signature);
   }
 

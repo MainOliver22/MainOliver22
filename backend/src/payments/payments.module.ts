@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { Deposit } from '../database/entities/deposit.entity';
 import { Withdrawal } from '../database/entities/withdrawal.entity';
 import { Asset } from '../database/entities/asset.entity';
@@ -14,6 +15,7 @@ import { PaymentsController } from './payments.controller';
   imports: [
     TypeOrmModule.forFeature([Deposit, Withdrawal, Asset, Account, Transaction, LedgerEntry]),
     LedgerModule,
+    ConfigModule,
   ],
   providers: [PaymentsService],
   controllers: [PaymentsController],
