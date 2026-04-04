@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -62,7 +63,10 @@ export class PaymentsController {
     @Headers('x-signature') xSignature = '',
   ) {
     // rawBody is available because NestFactory is created with { rawBody: true }
-    const rawBody: Buffer = req.rawBody ?? Buffer.alloc(0);
+    if (!req.rawBody) {
+      throw new BadRequestException('Raw body unavailable — ensure rawBody: true is set in NestFactory.create');
+    }
+    const rawBody: Buffer = req.rawBody;
     const signature = stripeSignature || xSignature;
     return this.paymentsService.handleDepositWebhook(rawBody, signature);
   }

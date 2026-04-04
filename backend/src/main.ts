@@ -13,7 +13,7 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors({
     origin: configService.get<string>('FRONTEND_URL', 'http://localhost:3000'),
-    credentials: true,
+    credentials: false,
   });
 
   // Global validation

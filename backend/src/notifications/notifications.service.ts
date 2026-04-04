@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from '../database/entities/notification.entity';
@@ -8,6 +8,8 @@ import { EmailService } from './email.service';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     @InjectRepository(Notification) private notifRepo: Repository<Notification>,
     private readonly emailService: EmailService,
@@ -37,8 +39,7 @@ export class NotificationsService {
       // Fire-and-forget: do not block the request on SMTP delivery
       void this.emailService.sendEmail(to, title, html).catch((err: unknown) => {
         const msg = err instanceof Error ? err.message : String(err);
-        // Logger not injected here; use console to avoid circular deps
-        console.error(`[NotificationsService] Failed to send email to ${to}: ${msg}`);
+        this.logger.error(`Failed to send email to ${to}: ${msg}`);
       });
     }
 
