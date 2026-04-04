@@ -9,7 +9,7 @@ export class CreateDepositDto {
 
   @ApiProperty({ description: 'Amount to deposit (positive numeric string, e.g. "100.50")' })
   @IsNumberString()
-  @Matches(/^\d+(\.\d+)?$/, { message: 'amount must be a positive, non-zero numeric string' })
+  @Matches(/^(?!0+(\.0+)?$)\d+(\.\d+)?$/, { message: 'amount must be a positive, non-zero numeric string' })
   amount!: string;
 
   @ApiProperty({ enum: DepositMethod })
