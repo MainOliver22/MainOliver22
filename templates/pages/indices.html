@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trade the world's leading stock market indices.">
+    <title>Rich Boy Tech | Indices</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plh7eecyn6CfDSZqdF3k8jMR+GF/rA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><\/script>
+</head>
+<body class="bg-gray-950 text-gray-100 flex flex-col min-h-full">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:bg-blue-700 focus:text-white focus:fixed focus:px-4 focus:py-2 focus:top-2 focus:left-2 focus:z-50">Skip to main content</a>
+
+    <!-- Header (shared) -->
+    <header class="bg-gray-900 border-b border-gray-800 relative z-50">
+        <div x-data="{ mobileMenuOpen: false }" class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="../../index.html" class="flex items-center">
+                        <img class="h-8 w-auto" src="https://richboytech.com/investment/storage/app/public/photos/KJeOgU2tnF88p2Nt0oSv4mRITxDrJMXUiqdG1QiN.png" alt="Rich Boy Tech">
+                    </a>
+                </div>
+                <nav aria-label="Main navigation" class="hidden md:flex space-x-8">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" :aria-expanded="open.toString()" aria-haspopup="true" class="group inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-200 hover:text-white focus:outline-none">
+                            <span>Trading</span>
+                            <svg class="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-black ring-opacity-5 z-50" style="display:none;">
+                            <a href="cryptocurrencies.html" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Cryptocurrencies</a>
+                            <a href="forex.html"            class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Forex</a>
+                            <a href="shares.html"           class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Shares</a>
+                            <a href="indices.html"          class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Indices</a>
+                            <a href="etfs.html"             class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">ETFs</a>
+                        </div>
+                    </div>
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" :aria-expanded="open.toString()" aria-haspopup="true" class="group inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-200 hover:text-white focus:outline-none">
+                            <span>System</span>
+                            <svg class="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-black ring-opacity-5 z-50" style="display:none;">
+                            <a href="trade.html"    class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Trade</a>
+                            <a href="copy.html"     class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Copy Trading</a>
+                            <a href="automate.html" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Automated Trading</a>
+                        </div>
+                    </div>
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" :aria-expanded="open.toString()" aria-haspopup="true" class="group inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-200 hover:text-white focus:outline-none">
+                            <span>Company</span>
+                            <svg class="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-black ring-opacity-5 z-50" style="display:none;">
+                            <a href="about.html"      class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">About Us</a>
+                            <a href="why-us.html"     class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Why Us</a>
+                            <a href="faq.html"        class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">FAQ</a>
+                            <a href="regulation.html" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">Legal &amp; Regulation</a>
+                        </div>
+                    </div>
+                    <a href="for-traders.html" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-200 hover:text-white">Education</a>
+                    <a href="contacts.html"    class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-200 hover:text-white">Contact</a>
+                </nav>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="login.html" class="text-gray-200 hover:text-white flex items-center"><i class="fas fa-lock mr-1" aria-hidden="true"></i><span>Log in</span></a>
+                    <a href="register.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">Sign up</a>
+                </div>
+                <div class="flex md:hidden items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" :aria-expanded="mobileMenuOpen.toString()" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu">
+                        <span class="sr-only">Open main menu</span>
+                        <svg x-show="!mobileMenuOpen" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <svg x-show="mobileMenuOpen" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div x-show="mobileMenuOpen" class="md:hidden" id="mobile-menu" style="display:none;">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    <div x-data="{ open: false }" class="py-1">
+                        <button @click="open = !open" :aria-expanded="open.toString()" class="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md"><span>Trading</span><svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="cryptocurrencies.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Cryptocurrencies</a>
+                            <a href="forex.html"            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Forex</a>
+                            <a href="shares.html"           class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Shares</a>
+                            <a href="indices.html"          class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Indices</a>
+                            <a href="etfs.html"             class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">ETFs</a>
+                        </div>
+                    </div>
+                    <div x-data="{ open: false }" class="py-1">
+                        <button @click="open = !open" :aria-expanded="open.toString()" class="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md"><span>System</span><svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="trade.html"    class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Trade</a>
+                            <a href="copy.html"     class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Copy Trading</a>
+                            <a href="automate.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Automated Trading</a>
+                        </div>
+                    </div>
+                    <div x-data="{ open: false }" class="py-1">
+                        <button @click="open = !open" :aria-expanded="open.toString()" class="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md"><span>Company</span><svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="about.html"      class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">About Us</a>
+                            <a href="why-us.html"     class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Why Us</a>
+                            <a href="faq.html"        class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">FAQ</a>
+                            <a href="regulation.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-md">Legal &amp; Regulation</a>
+                        </div>
+                    </div>
+                    <a href="for-traders.html" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md">Education</a>
+                    <a href="contacts.html"    class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md">Contact</a>
+                    <div class="pt-4 pb-2 border-t border-gray-700 space-y-2">
+                        <a href="login.html" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-md"><i class="fas fa-lock mr-1" aria-hidden="true"></i> Log in</a>
+                        <a href="register.html" class="block px-4 py-2 text-sm text-center bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors">Sign up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="flex-1 py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-white mb-4">Indices</h1>
+            <p class="text-gray-400">Trade the world's leading stock market indices.</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm text-gray-400">&copy; <span id="year"></span> Rich Boy Tech. All rights reserved.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="regulation.html" class="text-sm text-gray-400 hover:text-white">Privacy Policy</a>
+                <a href="regulation.html" class="text-sm text-gray-400 hover:text-white">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();<\/script>
+</body>
+</html>
