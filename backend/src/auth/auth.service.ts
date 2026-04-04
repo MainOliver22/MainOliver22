@@ -121,8 +121,8 @@ export class AuthService {
     return { accessToken, refreshToken: newRefreshToken };
   }
 
-  async logout(token: string) {
-    const session = await this.sessionRepo.findOne({ where: { token } });
+  async logout(userId: string, token: string) {
+    const session = await this.sessionRepo.findOne({ where: { token, userId } });
     if (session) {
       session.revokedAt = new Date();
       await this.sessionRepo.save(session);

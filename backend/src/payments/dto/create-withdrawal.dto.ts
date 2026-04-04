@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNumberString, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNumberString, IsObject, IsOptional, IsString, IsUUID, Matches } from 'class-validator';
 import { WithdrawalMethod } from '../../database/enums/withdrawal-method.enum';
 
 export class CreateWithdrawalDto {
@@ -7,8 +7,9 @@ export class CreateWithdrawalDto {
   @IsUUID()
   assetId!: string;
 
-  @ApiProperty({ description: 'Amount to withdraw (numeric string)' })
+  @ApiProperty({ description: 'Amount to withdraw (positive numeric string, e.g. "50.00")' })
   @IsNumberString()
+  @Matches(/^\d+(\.\d+)?$/, { message: 'amount must be a positive, non-zero numeric string' })
   amount!: string;
 
   @ApiProperty({ enum: WithdrawalMethod })
