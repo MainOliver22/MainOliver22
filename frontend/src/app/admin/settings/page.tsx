@@ -42,7 +42,7 @@ export default function AdminSettingsPage() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Platform</span>
-              <span className="text-sm font-medium">Rich Boy Tech</span>
+              <span className="text-sm font-medium">qfx-finance.com</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">API URL</span>
