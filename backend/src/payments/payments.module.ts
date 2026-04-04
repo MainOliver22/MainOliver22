@@ -15,7 +15,15 @@ import { PaymentsController } from './payments.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Deposit, Withdrawal, Asset, Account, Transaction, LedgerEntry, User]),
+    TypeOrmModule.forFeature([
+      Deposit,
+      Withdrawal,
+      Asset,
+      Account,
+      Transaction,
+      LedgerEntry,
+      User,
+    ]),
     LedgerModule,
     ConfigModule,
     CommonModule,

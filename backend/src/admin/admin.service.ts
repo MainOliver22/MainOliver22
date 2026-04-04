@@ -37,13 +37,25 @@ export class AdminService {
     limit: number,
     status?: UserStatus,
     role?: UserRole,
-  ): Promise<{ items: Omit<User, 'passwordHash' | 'twoFactorSecret'>[]; total: number; page: number; limit: number }> {
-    const qb = this.userRepo.createQueryBuilder('user').orderBy('user.createdAt', 'DESC');
+  ): Promise<{
+    items: Omit<User, 'passwordHash' | 'twoFactorSecret'>[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const qb = this.userRepo
+      .createQueryBuilder('user')
+      .orderBy('user.createdAt', 'DESC');
     if (status) qb.andWhere('user.status = :status', { status });
     if (role) qb.andWhere('user.role = :role', { role });
     qb.skip((page - 1) * limit).take(limit);
     const [rawItems, total] = await qb.getManyAndCount();
-    const items = rawItems.map(({ passwordHash: _p, twoFactorSecret: _t, ...safe }) => safe as Omit<User, 'passwordHash' | 'twoFactorSecret'>);
+
+    const items = rawItems.map(
+      (
+        { passwordHash: _p, twoFactorSecret: _t, ...safe }, // eslint-disable-line @typescript-eslint/no-unused-vars
+      ) => safe as Omit<User, 'passwordHash' | 'twoFactorSecret'>,
+    );
     return { items, total, page, limit };
   }
 
@@ -58,10 +70,14 @@ export class AdminService {
 
     const [balances, kycCase, botInstancesCount] = await Promise.all([
       this.accountRepo.find({ where: { userId }, relations: ['asset'] }),
-      this.kycCaseRepo.findOne({ where: { userId }, order: { createdAt: 'DESC' } }),
+      this.kycCaseRepo.findOne({
+        where: { userId },
+        order: { createdAt: 'DESC' },
+      }),
       this.botInstanceRepo.count({ where: { userId } }),
     ]);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _p, twoFactorSecret: _t, ...safeUser } = user;
 
     return {
@@ -100,17 +116,16 @@ export class AdminService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [
-      totalUsers,
-      activeUsers,
-      pendingKyc,
-      activeBots,
-    ] = await Promise.all([
-      this.userRepo.count(),
-      this.userRepo.count({ where: { status: UserStatus.ACTIVE } }),
-      this.kycCaseRepo.count({ where: { status: KycStatus.IN_REVIEW } }),
-      this.botInstanceRepo.count({ where: { status: BotInstanceStatus.ACTIVE } }),
-    ]);
+    const [totalUsers, activeUsers, pendingKyc, activeBots] = await Promise.all(
+      [
+        this.userRepo.count(),
+        this.userRepo.count({ where: { status: UserStatus.ACTIVE } }),
+        this.kycCaseRepo.count({ where: { status: KycStatus.IN_REVIEW } }),
+        this.botInstanceRepo.count({
+          where: { status: BotInstanceStatus.ACTIVE },
+        }),
+      ],
+    );
 
     // Use SUM(amount) so the values represent monetary totals, not record counts
     const [depositSumResult, withdrawalSumResult] = await Promise.all([
@@ -152,7 +167,13 @@ export class AdminService {
     action?: string,
     targetType?: string,
   ) {
-    return this.auditService.search({ actorId, action, targetType, page, limit });
+    return this.auditService.search({
+      actorId,
+      action,
+      targetType,
+      page,
+      limit,
+    });
   }
 
   getSystemHealth(): { status: string; timestamp: string; version: string } {

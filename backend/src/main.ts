@@ -25,7 +25,9 @@ async function bootstrap() {
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('qfx-finance.com API')
-    .setDescription('qfx-finance.com — CFD Trading platform with bot trading, exchange, KYC, and wallet management')
+    .setDescription(
+      'qfx-finance.com — CFD Trading platform with bot trading, exchange, KYC, and wallet management',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

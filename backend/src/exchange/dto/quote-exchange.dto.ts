@@ -10,8 +10,12 @@ export class QuoteExchangeDto {
   @IsUUID()
   toAssetId!: string;
 
-  @ApiProperty({ description: 'Amount to convert (positive numeric string, e.g. "0.5")' })
+  @ApiProperty({
+    description: 'Amount to convert (positive numeric string, e.g. "0.5")',
+  })
   @IsNumberString()
-  @Matches(/^(?!0+(\.0+)?$)\d+(\.\d+)?$/, { message: 'fromAmount must be a positive, non-zero numeric string' })
+  @Matches(/^(?!0+(\.0+)?$)\d+(\.\d+)?$/, {
+    message: 'fromAmount must be a positive, non-zero numeric string',
+  })
   fromAmount!: string;
 }

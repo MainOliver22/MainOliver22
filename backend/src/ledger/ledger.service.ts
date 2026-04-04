@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository, DataSource, QueryRunner } from 'typeorm';
 import { Account } from '../database/entities/account.entity';
@@ -73,7 +77,9 @@ export class LedgerService {
     const numericAmount = parseFloat(amount);
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      throw new BadRequestException(`Transfer amount must be a positive finite number, got: ${amount}`);
+      throw new BadRequestException(
+        `Transfer amount must be a positive finite number, got: ${amount}`,
+      );
     }
 
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
@@ -95,7 +101,8 @@ export class LedgerService {
         .where('account.id = :id', { id: toAccountId })
         .getOne();
 
-      if (!toAccount) throw new NotFoundException('Destination account not found');
+      if (!toAccount)
+        throw new NotFoundException('Destination account not found');
 
       const fromBalance = parseFloat(fromAccount.balance);
       const toBalance = parseFloat(toAccount.balance);
@@ -109,8 +116,12 @@ export class LedgerService {
       const newFromBalance = (fromBalance - numericAmount).toFixed(8);
       const newToBalance = (toBalance + numericAmount).toFixed(8);
 
-      await queryRunner.manager.update(Account, fromAccountId, { balance: newFromBalance });
-      await queryRunner.manager.update(Account, toAccountId, { balance: newToBalance });
+      await queryRunner.manager.update(Account, fromAccountId, {
+        balance: newFromBalance,
+      });
+      await queryRunner.manager.update(Account, toAccountId, {
+        balance: newToBalance,
+      });
 
       const debitEntry = queryRunner.manager.create(LedgerEntry, {
         transactionId,
@@ -170,7 +181,12 @@ export class LedgerService {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: LedgerEntry[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: LedgerEntry[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const userAccounts = await this.accountRepo.find({ where: { userId } });
     const accountIds = userAccounts.map((a) => a.id);
 

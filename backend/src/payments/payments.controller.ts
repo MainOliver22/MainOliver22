@@ -51,20 +51,25 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getDeposits(user.id, Number(page), Number(limit));
+    return this.paymentsService.getDeposits(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Post('deposit/webhook')
   @ApiOperation({ summary: 'Receive deposit webhook (public)' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleWebhook(
-    @Req() req: any,
+    @Req() req: { rawBody?: Buffer },
     @Headers('stripe-signature') stripeSignature = '',
     @Headers('x-signature') xSignature = '',
   ) {
     // rawBody is available because NestFactory is created with { rawBody: true }
     if (!req.rawBody) {
-      throw new BadRequestException('Raw body unavailable — ensure rawBody: true is set in NestFactory.create');
+      throw new BadRequestException(
+        'Raw body unavailable — ensure rawBody: true is set in NestFactory.create',
+      );
     }
     const rawBody: Buffer = req.rawBody;
     const signature = stripeSignature || xSignature;
@@ -75,7 +80,10 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a withdrawal request' })
-  createWithdrawal(@CurrentUser() user: User, @Body() dto: CreateWithdrawalDto) {
+  createWithdrawal(
+    @CurrentUser() user: User,
+    @Body() dto: CreateWithdrawalDto,
+  ) {
     return this.paymentsService.createWithdrawal(user.id, dto);
   }
 
@@ -90,7 +98,11 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getWithdrawals(user.id, Number(page), Number(limit));
+    return this.paymentsService.getWithdrawals(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('admin/deposits')

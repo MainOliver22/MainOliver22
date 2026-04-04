@@ -1,5 +1,19 @@
-import { Controller, Post, Body, Req, HttpCode, HttpStatus, UseGuards, Get } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiProperty } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiProperty,
+} from '@nestjs/swagger';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -93,6 +107,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Complete 2FA login with TOTP code' })
   verify2faLogin(@Body() dto: Verify2faLoginDto, @Req() req: Request) {
-    return this.authService.verify2faLogin(dto.tempToken, dto.totpCode, req.ip, req.headers['user-agent']);
+    return this.authService.verify2faLogin(
+      dto.tempToken,
+      dto.totpCode,
+      req.ip,
+      req.headers['user-agent'],
+    );
   }
 }

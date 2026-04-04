@@ -32,7 +32,11 @@ export class SupportTicket {
   @Column({ type: 'enum', enum: TicketStatus, default: TicketStatus.OPEN })
   status!: TicketStatus;
 
-  @Column({ type: 'enum', enum: TicketPriority, default: TicketPriority.MEDIUM })
+  @Column({
+    type: 'enum',
+    enum: TicketPriority,
+    default: TicketPriority.MEDIUM,
+  })
   priority!: TicketPriority;
 
   @Column({ type: 'varchar' })

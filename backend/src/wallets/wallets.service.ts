@@ -22,7 +22,9 @@ export class WalletsService {
       where: { userId, address: dto.address, chain: dto.chain },
     });
     if (existing) {
-      throw new ConflictException('This wallet address is already connected for this chain');
+      throw new ConflictException(
+        'This wallet address is already connected for this chain',
+      );
     }
 
     const wallet = this.walletRepo.create({
@@ -86,7 +88,9 @@ export class WalletsService {
     void message;
     void signature;
 
-    const wallet = await this.walletRepo.findOne({ where: { userId, address } });
+    const wallet = await this.walletRepo.findOne({
+      where: { userId, address },
+    });
     if (!wallet) {
       throw new NotFoundException('Wallet not found for this user and address');
     }

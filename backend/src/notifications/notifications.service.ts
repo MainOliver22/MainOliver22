@@ -37,10 +37,12 @@ export class NotificationsService {
       const to = metadata['email'] as string;
       const html = `<h2>${title}</h2><p>${message}</p>`;
       // Fire-and-forget: do not block the request on SMTP delivery
-      void this.emailService.sendEmail(to, title, html).catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : String(err);
-        this.logger.error(`Failed to send email to ${to}: ${msg}`);
-      });
+      void this.emailService
+        .sendEmail(to, title, html)
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          this.logger.error(`Failed to send email to ${to}: ${msg}`);
+        });
     }
 
     return saved;

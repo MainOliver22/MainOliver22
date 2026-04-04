@@ -21,8 +21,7 @@ export default function AdminPaymentsPage() {
     }
   };
 
-  useEffect(() => { setPage(1); fetchData(1); }, [tab]);
-  useEffect(() => { fetchData(page); }, [page]);
+  useEffect(() => { fetchData(page); }, [tab, page]);
 
   const statusColor = (status: string) => {
     if (status === 'CONFIRMED' || status === 'COMPLETED') return 'bg-green-100 text-green-700';
@@ -36,8 +35,8 @@ export default function AdminPaymentsPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Payments</h1>
       <div className="flex gap-2 mb-4">
-        <Button size="sm" variant={tab === 'deposits' ? 'primary' : 'ghost'} onClick={() => setTab('deposits')}>Deposits</Button>
-        <Button size="sm" variant={tab === 'withdrawals' ? 'primary' : 'ghost'} onClick={() => setTab('withdrawals')}>Withdrawals</Button>
+        <Button size="sm" variant={tab === 'deposits' ? 'primary' : 'ghost'} onClick={() => { setTab('deposits'); setPage(1); }}>Deposits</Button>
+        <Button size="sm" variant={tab === 'withdrawals' ? 'primary' : 'ghost'} onClick={() => { setTab('withdrawals'); setPage(1); }}>Withdrawals</Button>
       </div>
       <Card>
         <div className="overflow-x-auto">

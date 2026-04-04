@@ -52,13 +52,17 @@ export class KycController {
 
   @Post('kyc/webhook')
   @ApiOperation({ summary: 'KYC provider webhook (public)' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleWebhook(@Req() req: any, @Headers('x-signature') signature: string) {
+  handleWebhook(
+    @Req() req: { rawBody?: Buffer },
+    @Headers('x-signature') signature: string,
+  ) {
     // rawBody is available because NestFactory is created with { rawBody: true }
     if (!req.rawBody) {
-      throw new BadRequestException('Raw body unavailable — ensure rawBody: true is set in NestFactory.create');
+      throw new BadRequestException(
+        'Raw body unavailable — ensure rawBody: true is set in NestFactory.create',
+      );
     }
-    return this.kycService.handleWebhook(req.rawBody as Buffer, signature ?? '');
+    return this.kycService.handleWebhook(req.rawBody, signature ?? '');
   }
 
   @Get('admin/kyc')
