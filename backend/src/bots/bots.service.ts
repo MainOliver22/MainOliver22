@@ -30,6 +30,8 @@ const MOCK_PRICES: Record<string, number> = {
   ADA: 0.5,
   USDT: 1,
   USDC: 1,
+  XRP: 0.6,
+  DOGE: 0.08,
 };
 
 @Injectable()

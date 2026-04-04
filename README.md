@@ -93,7 +93,7 @@ cd frontend && npm install && npm run dev
 - [x] 8-role RBAC with guards and decorators on every endpoint
 - [x] KYC flow: user-initiated, webhook-driven, admin approve/reject
 - [x] WalletConnect wallet management
-- [x] Multi-asset support (USD, BTC, ETH, USDT - extensible)
+- [x] Multi-asset support (USD, BTC, ETH, USDT, USDC, BNB, SOL, ADA, XRP, DOGE — extensible)
 - [x] Double-entry ledger with pessimistic DB locking
 - [x] Deposits and withdrawals (with admin approval for large amounts)
 - [x] Asset exchange: quote (30s expiry) + execute with fee/spread
