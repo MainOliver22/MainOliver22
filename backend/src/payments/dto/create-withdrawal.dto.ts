@@ -9,7 +9,7 @@ export class CreateWithdrawalDto {
 
   @ApiProperty({ description: 'Amount to withdraw (positive numeric string, e.g. "50.00")' })
   @IsNumberString()
-  @Matches(/^\d+(\.\d+)?$/, { message: 'amount must be a positive, non-zero numeric string' })
+  @Matches(/^(?!0+(\.0+)?$)\d+(\.\d+)?$/, { message: 'amount must be a positive, non-zero numeric string' })
   amount!: string;
 
   @ApiProperty({ enum: WithdrawalMethod })

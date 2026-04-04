@@ -8,7 +8,7 @@ export class CreateInstanceDto {
 
   @ApiProperty({ description: 'Amount to allocate (positive numeric string, e.g. "100.00")' })
   @IsNumberString()
-  @Matches(/^\d+(\.\d+)?$/, { message: 'allocatedAmount must be a positive, non-zero numeric string' })
+  @Matches(/^(?!0+(\.0+)?$)\d+(\.\d+)?$/, { message: 'allocatedAmount must be a positive, non-zero numeric string' })
   allocatedAmount!: string;
 
   @ApiPropertyOptional({ description: 'Override strategy parameters' })

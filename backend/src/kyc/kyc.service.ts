@@ -160,9 +160,11 @@ export class KycService {
         .update(rawBody)
         .digest('hex');
 
-      // Compare as hex strings using constant-time comparison (same length guaranteed by hex encoding)
-      const sigBuf = Buffer.from(signature, 'hex');
-      const expectedBuf = Buffer.from(expectedSig, 'hex');
+      // Onfido sends the X-SHA2-Signature header as a hex digest string.
+      // Compare as UTF-8 byte buffers for constant-time equality to avoid timing attacks.
+      // The explicit length check guards against timingSafeEqual throwing on differing lengths.
+      const sigBuf = Buffer.from(signature, 'utf8');
+      const expectedBuf = Buffer.from(expectedSig, 'utf8');
 
       if (
         sigBuf.length !== expectedBuf.length ||
