@@ -45,7 +45,11 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role!: UserRole;
 
-  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.PENDING_VERIFICATION })
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING_VERIFICATION,
+  })
   status!: UserStatus;
 
   @Column({ type: 'boolean', default: false })

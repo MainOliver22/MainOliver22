@@ -36,17 +36,25 @@ export class ExchangeService {
     private readonly priceFeedService: PriceFeedService,
   ) {}
 
-  async getQuote(userId: string, dto: QuoteExchangeDto): Promise<ExchangeOrder> {
+  async getQuote(
+    userId: string,
+    dto: QuoteExchangeDto,
+  ): Promise<ExchangeOrder> {
     const [fromAsset, toAsset] = await Promise.all([
       this.assetRepo.findOne({ where: { id: dto.fromAssetId } }),
       this.assetRepo.findOne({ where: { id: dto.toAssetId } }),
     ]);
-    if (!fromAsset) throw new NotFoundException(`Asset ${dto.fromAssetId} not found`);
-    if (!toAsset) throw new NotFoundException(`Asset ${dto.toAssetId} not found`);
+    if (!fromAsset)
+      throw new NotFoundException(`Asset ${dto.fromAssetId} not found`);
+    if (!toAsset)
+      throw new NotFoundException(`Asset ${dto.toAssetId} not found`);
 
-    const baseRate = await this.priceFeedService.getMockRate(fromAsset.symbol, toAsset.symbol);
+    const baseRate = await this.priceFeedService.getMockRate(
+      fromAsset.symbol,
+      toAsset.symbol,
+    );
     const spreadPct = 0.005; // 0.5%
-    const feePct = 0.001;    // 0.1%
+    const feePct = 0.001; // 0.1%
 
     const fromAmount = parseFloat(dto.fromAmount);
     const spreadAmount = fromAmount * spreadPct;
@@ -63,8 +71,8 @@ export class ExchangeService {
       fromAmount: dto.fromAmount,
       toAmount: toAmount.toFixed(8),
       rate: baseRate.toFixed(8),
-      spread: (spreadAmount).toFixed(8),
-      fee: (feeAmount).toFixed(8),
+      spread: spreadAmount.toFixed(8),
+      fee: feeAmount.toFixed(8),
       status: ExchangeOrderStatus.QUOTED,
       quoteExpiresAt,
       idempotencyKey: uuid(),
@@ -77,21 +85,33 @@ export class ExchangeService {
     }) as Promise<ExchangeOrder>;
   }
 
-  async executeExchange(userId: string, dto: ExecuteExchangeDto): Promise<ExchangeOrder> {
+  async executeExchange(
+    userId: string,
+    dto: ExecuteExchangeDto,
+  ): Promise<ExchangeOrder> {
     const order = await this.orderRepo.findOne({
       where: { id: dto.quoteId, userId },
       relations: ['fromAsset', 'toAsset'],
     });
     if (!order) throw new NotFoundException(`Quote ${dto.quoteId} not found`);
     if (order.status !== ExchangeOrderStatus.QUOTED) {
-      throw new BadRequestException(`Quote is not in QUOTED state (current: ${order.status})`);
+      throw new BadRequestException(
+        `Quote is not in QUOTED state (current: ${order.status})`,
+      );
     }
     if (order.quoteExpiresAt && order.quoteExpiresAt < new Date()) {
-      await this.orderRepo.update(order.id, { status: ExchangeOrderStatus.EXPIRED });
-      throw new BadRequestException('Quote has expired. Please request a new quote.');
+      await this.orderRepo.update(order.id, {
+        status: ExchangeOrderStatus.EXPIRED,
+      });
+      throw new BadRequestException(
+        'Quote has expired. Please request a new quote.',
+      );
     }
 
-    const balance = await this.ledgerService.getBalance(userId, order.fromAssetId);
+    const balance = await this.ledgerService.getBalance(
+      userId,
+      order.fromAssetId,
+    );
     if (parseFloat(balance) < parseFloat(order.fromAmount)) {
       throw new BadRequestException(
         `Insufficient balance. Available: ${balance} ${order.fromAsset.symbol}`,
@@ -113,11 +133,12 @@ export class ExchangeService {
       order.fromAssetId,
       AccountType.USER_AVAILABLE,
     );
-    const systemExchangeFromAccount = await this.ledgerService.getOrCreateAccount(
-      null,
-      order.fromAssetId,
-      AccountType.SYSTEM_EXCHANGE,
-    );
+    const systemExchangeFromAccount =
+      await this.ledgerService.getOrCreateAccount(
+        null,
+        order.fromAssetId,
+        AccountType.SYSTEM_EXCHANGE,
+      );
 
     await this.ledgerService.transfer({
       fromAccountId: userFromAccount.id,
@@ -179,7 +200,12 @@ export class ExchangeService {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: ExchangeOrder[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: ExchangeOrder[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const [items, total] = await this.orderRepo.findAndCount({
       where: { userId },
       relations: ['fromAsset', 'toAsset'],
@@ -193,7 +219,12 @@ export class ExchangeService {
   async getAllOrders(
     page: number,
     limit: number,
-  ): Promise<{ items: ExchangeOrder[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: ExchangeOrder[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const [items, total] = await this.orderRepo.findAndCount({
       relations: ['fromAsset', 'toAsset', 'user'],
       order: { createdAt: 'DESC' },

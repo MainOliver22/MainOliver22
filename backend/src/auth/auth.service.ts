@@ -1,6 +1,9 @@
 import type { StringValue } from 'ms';
 import {
-  Injectable, ConflictException, UnauthorizedException, NotFoundException,
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,7 +12,8 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { authenticator } from 'otplib';
-import { User } from '../database/entities/user.entity';import { RefreshToken } from '../database/entities/session.entity';
+import { User } from '../database/entities/user.entity';
+import { RefreshToken } from '../database/entities/session.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserRole } from '../database/enums/user-role.enum';
@@ -19,13 +23,16 @@ import { UserStatus } from '../database/enums/user-status.enum';
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(RefreshToken) private sessionRepo: Repository<RefreshToken>,
+    @InjectRepository(RefreshToken)
+    private sessionRepo: Repository<RefreshToken>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.userRepo.findOne({ where: { email: dto.email } });
+    const existing = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
     if (existing) throw new ConflictException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
@@ -50,7 +57,10 @@ export class AuthService {
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials');
 
-    if (user.status === UserStatus.SUSPENDED || user.status === UserStatus.FROZEN) {
+    if (
+      user.status === UserStatus.SUSPENDED ||
+      user.status === UserStatus.FROZEN
+    ) {
       throw new UnauthorizedException('Account suspended or frozen');
     }
 
@@ -77,7 +87,9 @@ export class AuthService {
   ) {
     let payload: { sub: string; twoFaPending?: boolean };
     try {
-      payload = this.jwtService.verify<{ sub: string; twoFaPending?: boolean }>(tempToken);
+      payload = this.jwtService.verify<{ sub: string; twoFaPending?: boolean }>(
+        tempToken,
+      );
     } catch {
       throw new UnauthorizedException('Invalid or expired temp token');
     }
@@ -91,7 +103,10 @@ export class AuthService {
       throw new UnauthorizedException('User not found or 2FA not configured');
     }
 
-    const isValid = authenticator.verify({ token: totpCode, secret: user.twoFactorSecret });
+    const isValid = authenticator.verify({
+      token: totpCode,
+      secret: user.twoFactorSecret,
+    });
     if (!isValid) {
       throw new UnauthorizedException('Invalid TOTP code');
     }
@@ -111,7 +126,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const { accessToken, refreshToken: newRefreshToken } = await this.generateTokens(session.user);
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.generateTokens(session.user);
     // Rotate token
     session.revokedAt = new Date();
     await this.sessionRepo.save(session);
@@ -134,7 +150,11 @@ export class AuthService {
     if (!user) throw new NotFoundException('User not found');
 
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(user.email, 'InvestmentPlatform', secret);
+    const otpauthUrl = authenticator.keyuri(
+      user.email,
+      'InvestmentPlatform',
+      secret,
+    );
 
     user.twoFactorSecret = secret;
     user.twoFactorEnabled = false; // not yet confirmed
@@ -149,7 +169,10 @@ export class AuthService {
       throw new NotFoundException('User not found or 2FA not initialized');
     }
 
-    const isValid = authenticator.verify({ token, secret: user.twoFactorSecret });
+    const isValid = authenticator.verify({
+      token,
+      secret: user.twoFactorSecret,
+    });
     if (!isValid) throw new UnauthorizedException('Invalid TOTP token');
 
     user.twoFactorEnabled = true;
@@ -163,7 +186,10 @@ export class AuthService {
       throw new NotFoundException('User not found or 2FA not configured');
     }
 
-    const isValid = authenticator.verify({ token, secret: user.twoFactorSecret });
+    const isValid = authenticator.verify({
+      token,
+      secret: user.twoFactorSecret,
+    });
     if (!isValid) throw new UnauthorizedException('Invalid TOTP token');
 
     user.twoFactorEnabled = false;
@@ -175,7 +201,10 @@ export class AuthService {
   private async generateTokens(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('JWT_EXPIRY', '15m') as StringValue,
+      expiresIn: this.configService.get<string>(
+        'JWT_EXPIRY',
+        '15m',
+      ) as StringValue,
     });
     const refreshToken = uuidv4();
     return { accessToken, refreshToken };

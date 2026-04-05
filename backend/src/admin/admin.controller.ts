@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -41,7 +48,12 @@ export class AdminController {
     @Query('status') status?: UserStatus,
     @Query('role') role?: UserRole,
   ) {
-    return this.adminService.getUsers(Number(page), Number(limit), status, role);
+    return this.adminService.getUsers(
+      Number(page),
+      Number(limit),
+      status,
+      role,
+    );
   }
 
   @Get('users/:id')
@@ -88,7 +100,13 @@ export class AdminController {
     @Query('action') action?: string,
     @Query('targetType') targetType?: string,
   ) {
-    return this.adminService.getAuditLogs(Number(page), Number(limit), actorId, action, targetType);
+    return this.adminService.getAuditLogs(
+      Number(page),
+      Number(limit),
+      actorId,
+      action,
+      targetType,
+    );
   }
 
   @Get('health')

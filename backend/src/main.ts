@@ -25,7 +25,9 @@ async function bootstrap() {
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('Investment Platform API')
-    .setDescription('Full-stack investment platform with WalletConnect, bot trading, exchange, and KYC')
+    .setDescription(
+      'Full-stack investment platform with WalletConnect, bot trading, exchange, and KYC',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

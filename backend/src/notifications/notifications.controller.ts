@@ -1,6 +1,12 @@
 import {
-  Controller, Get, Patch, Param, UseGuards,
-  Query, DefaultValuePipe, ParseIntPipe,
+  Controller,
+  Get,
+  Patch,
+  Param,
+  UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

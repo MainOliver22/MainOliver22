@@ -22,13 +22,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'change-me-in-production'),
+      secretOrKey: configService.get<string>(
+        'JWT_SECRET',
+        'change-me-in-production',
+      ),
     });
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.userRepository.findOne({ where: { id: payload.sub } });
-    if (!user || user.status === UserStatus.SUSPENDED || user.status === UserStatus.FROZEN) {
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+    });
+    if (
+      !user ||
+      user.status === UserStatus.SUSPENDED ||
+      user.status === UserStatus.FROZEN
+    ) {
       throw new UnauthorizedException('Account not accessible');
     }
     return user;
