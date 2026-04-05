@@ -47,7 +47,11 @@ export class ExchangeController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.exchangeService.getHistory(user.id, Number(page), Number(limit));
+    return this.exchangeService.getHistory(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('admin/exchange/orders')

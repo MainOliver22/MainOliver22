@@ -40,7 +40,10 @@ export class Account {
   updatedAt!: Date;
 
   @Index()
-  @ManyToOne(() => User, (user) => user.accounts, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => User, (user) => user.accounts, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'userId' })
   user!: User | null;
 

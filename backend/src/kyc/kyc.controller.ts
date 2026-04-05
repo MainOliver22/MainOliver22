@@ -8,6 +8,8 @@ import {
   Query,
   UseGuards,
   Headers,
+  Req,
+  BadRequestException,
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
@@ -51,10 +53,16 @@ export class KycController {
   @Post('kyc/webhook')
   @ApiOperation({ summary: 'KYC provider webhook (public)' })
   handleWebhook(
-    @Body() body: Record<string, unknown>,
+    @Req() req: { rawBody?: Buffer },
     @Headers('x-signature') signature: string,
   ) {
-    return this.kycService.handleWebhook(body, signature ?? '');
+    // rawBody is available because NestFactory is created with { rawBody: true }
+    if (!req.rawBody) {
+      throw new BadRequestException(
+        'Raw body unavailable — ensure rawBody: true is set in NestFactory.create',
+      );
+    }
+    return this.kycService.handleWebhook(req.rawBody, signature ?? '');
   }
 
   @Get('admin/kyc')

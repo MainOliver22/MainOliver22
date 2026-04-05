@@ -6,7 +6,7 @@ A production-ready full-stack investment platform with WalletConnect, bot tradin
 
 - **Backend:** NestJS + TypeScript + PostgreSQL + TypeORM (double-entry ledger)
 - **Queue:** Redis + BullMQ
-- **Frontend:** Next.js 15 + React + TypeScript + Tailwind CSS
+- **Frontend:** Next.js 16 + React + TypeScript + Tailwind CSS
 - **Auth:** JWT + Refresh Tokens (rotating)
 - **Security:** Helmet, rate limiting, bcrypt (12 rounds), class-validator
 - **Docs:** Swagger/OpenAPI at `/api/docs`

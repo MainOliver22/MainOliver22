@@ -35,11 +35,15 @@ export class LedgerEntry {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => Transaction, (tx) => tx.ledgerEntries, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Transaction, (tx) => tx.ledgerEntries, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'transactionId' })
   transaction!: Transaction;
 
-  @ManyToOne(() => Account, (account) => account.ledgerEntries, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Account, (account) => account.ledgerEntries, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'accountId' })
   account!: Account;
 }

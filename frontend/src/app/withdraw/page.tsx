@@ -21,7 +21,7 @@ export default function WithdrawPage() {
 
   useEffect(() => {
     api.get('/assets').then(r => { setAssets(r.data); if (r.data[0]) setAssetId(r.data[0].id); });
-    api.get('/withdraw/history').then(r => setWithdrawals(r.data.withdrawals || []));
+    api.get('/withdraw/history').then(r => setWithdrawals(r.data.items || []));
   }, []);
 
   const handleWithdraw = async () => {
@@ -33,7 +33,7 @@ export default function WithdrawPage() {
       await api.post('/withdraw/create', body);
       setSuccess('Withdrawal request submitted successfully!');
       const r = await api.get('/withdraw/history');
-      setWithdrawals(r.data.withdrawals || []);
+      setWithdrawals(r.data.items || []);
       setAmount('');
       setToAddress('');
     } catch (err: unknown) {

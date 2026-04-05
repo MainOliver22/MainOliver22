@@ -37,17 +37,30 @@ export class AdminService {
     limit: number,
     status?: UserStatus,
     role?: UserRole,
-  ): Promise<{ items: User[]; total: number; page: number; limit: number }> {
-    const qb = this.userRepo.createQueryBuilder('user').orderBy('user.createdAt', 'DESC');
+  ): Promise<{
+    items: Omit<User, 'passwordHash' | 'twoFactorSecret'>[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const qb = this.userRepo
+      .createQueryBuilder('user')
+      .orderBy('user.createdAt', 'DESC');
     if (status) qb.andWhere('user.status = :status', { status });
     if (role) qb.andWhere('user.role = :role', { role });
     qb.skip((page - 1) * limit).take(limit);
-    const [items, total] = await qb.getManyAndCount();
+    const [rawItems, total] = await qb.getManyAndCount();
+
+    const items = rawItems.map(
+      (
+        { passwordHash: _p, twoFactorSecret: _t, ...safe }, // eslint-disable-line @typescript-eslint/no-unused-vars
+      ) => safe as Omit<User, 'passwordHash' | 'twoFactorSecret'>,
+    );
     return { items, total, page, limit };
   }
 
   async getUserDetail(userId: string): Promise<{
-    user: User;
+    user: Omit<User, 'passwordHash' | 'twoFactorSecret'>;
     balances: Account[];
     kycStatus: string;
     botInstancesCount: number;
@@ -57,12 +70,18 @@ export class AdminService {
 
     const [balances, kycCase, botInstancesCount] = await Promise.all([
       this.accountRepo.find({ where: { userId }, relations: ['asset'] }),
-      this.kycCaseRepo.findOne({ where: { userId }, order: { createdAt: 'DESC' } }),
+      this.kycCaseRepo.findOne({
+        where: { userId },
+        order: { createdAt: 'DESC' },
+      }),
       this.botInstanceRepo.count({ where: { userId } }),
     ]);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _p, twoFactorSecret: _t, ...safeUser } = user;
+
     return {
-      user,
+      user: safeUser as Omit<User, 'passwordHash' | 'twoFactorSecret'>,
       balances,
       kycStatus: kycCase?.status ?? KycStatus.NOT_STARTED,
       botInstancesCount,
@@ -89,35 +108,38 @@ export class AdminService {
     totalUsers: number;
     activeUsers: number;
     pendingKyc: number;
-    totalDepositsToday: number;
-    totalWithdrawalsToday: number;
+    totalDepositsToday: string;
+    totalWithdrawalsToday: string;
     activeBots: number;
     totalAum: string;
   }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [
-      totalUsers,
-      activeUsers,
-      pendingKyc,
-      totalDepositsToday,
-      totalWithdrawalsToday,
-      activeBots,
-    ] = await Promise.all([
-      this.userRepo.count(),
-      this.userRepo.count({ where: { status: UserStatus.ACTIVE } }),
-      this.kycCaseRepo.count({ where: { status: KycStatus.IN_REVIEW } }),
+    const [totalUsers, activeUsers, pendingKyc, activeBots] = await Promise.all(
+      [
+        this.userRepo.count(),
+        this.userRepo.count({ where: { status: UserStatus.ACTIVE } }),
+        this.kycCaseRepo.count({ where: { status: KycStatus.IN_REVIEW } }),
+        this.botInstanceRepo.count({
+          where: { status: BotInstanceStatus.ACTIVE },
+        }),
+      ],
+    );
+
+    // Use SUM(amount) so the values represent monetary totals, not record counts
+    const [depositSumResult, withdrawalSumResult] = await Promise.all([
       this.depositRepo
         .createQueryBuilder('d')
+        .select('COALESCE(SUM(CAST(d.amount AS DECIMAL)), 0)', 'total')
         .where('d.createdAt >= :today', { today })
         .andWhere('d.status = :status', { status: DepositStatus.CONFIRMED })
-        .getCount(),
+        .getRawOne<{ total: string }>(),
       this.withdrawalRepo
         .createQueryBuilder('w')
+        .select('COALESCE(SUM(CAST(w.amount AS DECIMAL)), 0)', 'total')
         .where('w.createdAt >= :today', { today })
-        .getCount(),
-      this.botInstanceRepo.count({ where: { status: BotInstanceStatus.ACTIVE } }),
+        .getRawOne<{ total: string }>(),
     ]);
 
     // Sum all user available account balances (rough AUM)
@@ -131,8 +153,8 @@ export class AdminService {
       totalUsers,
       activeUsers,
       pendingKyc,
-      totalDepositsToday,
-      totalWithdrawalsToday,
+      totalDepositsToday: depositSumResult?.total ?? '0',
+      totalWithdrawalsToday: withdrawalSumResult?.total ?? '0',
       activeBots,
       totalAum: aumResult?.totalAum ?? '0',
     };
@@ -145,7 +167,13 @@ export class AdminService {
     action?: string,
     targetType?: string,
   ) {
-    return this.auditService.search({ actorId, action, targetType, page, limit });
+    return this.auditService.search({
+      actorId,
+      action,
+      targetType,
+      page,
+      limit,
+    });
   }
 
   getSystemHealth(): { status: string; timestamp: string; version: string } {

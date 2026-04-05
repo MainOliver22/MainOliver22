@@ -11,7 +11,7 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
 
   const fetchUsers = () => {
-    api.get(`/admin/users?page=${page}&limit=20`).then(r => { setUsers(r.data.users || []); setTotal(r.data.total || 0); });
+    api.get(`/admin/users?page=${page}&limit=20`).then(r => { setUsers(r.data.items || []); setTotal(r.data.total || 0); });
   };
 
   useEffect(() => { fetchUsers(); }, [page]);

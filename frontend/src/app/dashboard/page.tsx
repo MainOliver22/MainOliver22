@@ -24,8 +24,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      api.get('/portfolio/balances').then(r => setBalances(r.data.balances || [])),
-      api.get('/bots/instances').then(r => setBots(r.data.instances || [])),
+      api.get('/portfolio/balances').then(r => setBalances(r.data || [])),
+      api.get('/bots/instances').then(r => setBots(r.data || [])),
     ]).finally(() => setLoadingData(false));
   }, [user]);
 

@@ -6,14 +6,14 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const configService = app.get(ConfigService);
 
   // Security
   app.use(helmet());
   app.enableCors({
     origin: configService.get<string>('FRONTEND_URL', 'http://localhost:3000'),
-    credentials: true,
+    credentials: false,
   });
 
   // Global validation
@@ -24,8 +24,10 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('Investment Platform API')
-    .setDescription('Full-stack investment platform with WalletConnect, bot trading, exchange, and KYC')
+    .setTitle('qfx-finance.com API')
+    .setDescription(
+      'qfx-finance.com — CFD Trading platform with bot trading, exchange, KYC, and wallet management',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

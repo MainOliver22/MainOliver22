@@ -1,9 +1,7 @@
-import * as crypto from 'crypto';
 import {
   Injectable,
   ConflictException,
   NotFoundException,
-  Logger,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +12,6 @@ import { ConnectWalletDto } from './dto/connect-wallet.dto';
 
 @Injectable()
 export class WalletsService {
-  private readonly logger = new Logger(WalletsService.name);
   constructor(
     @InjectRepository(Wallet)
     private readonly walletRepo: Repository<Wallet>,
@@ -25,7 +22,9 @@ export class WalletsService {
       where: { userId, address: dto.address, chain: dto.chain },
     });
     if (existing) {
-      throw new ConflictException('This wallet address is already connected for this chain');
+      throw new ConflictException(
+        'This wallet address is already connected for this chain',
+      );
     }
 
     const wallet = this.walletRepo.create({
@@ -72,9 +71,12 @@ export class WalletsService {
   /**
    * Verify a wallet via SIWE (Sign-In with Ethereum) signature.
    *
-   * TODO: Full ECDSA recovery (ecrecover) requires an Ethereum library like ethers.js or viem.
-   * Since neither is available in the backend, we perform a basic sanity check and log a warning.
-   * Replace this stub with real EC recovery when an eth library is added to the backend dependencies.
+   * Real ECDSA signature recovery (ecrecover) requires an Ethereum library such as ethers.js or viem.
+   * Until such a library is added to the backend dependencies, this endpoint rejects all verification
+   * attempts to prevent false ownership claims.
+   *
+   * TODO: Replace the NotImplementedException below with actual ecrecover-based verification once
+   *       ethers or viem is added to package.json.
    */
   async verifyWallet(
     userId: string,
@@ -82,34 +84,22 @@ export class WalletsService {
     message: string,
     signature: string,
   ): Promise<Wallet> {
-    const wallet = await this.walletRepo.findOne({ where: { userId, address } });
+    // Suppress unused-parameter warnings — these will be used once real SIWE is implemented
+    void message;
+    void signature;
+
+    const wallet = await this.walletRepo.findOne({
+      where: { userId, address },
+    });
     if (!wallet) {
       throw new NotFoundException('Wallet not found for this user and address');
     }
 
-    this.logger.warn(
-      'SIWE stub: real ECDSA recovery requires an Ethereum library. ' +
-        'Performing basic message/address sanity check only.',
+    // Real ECDSA signature verification is not yet implemented.
+    // Reject instead of silently granting ownership to avoid security bypass.
+    throw new BadRequestException(
+      'SIWE signature verification is not yet implemented. ' +
+        'Add ethers.js or viem to the backend and implement ecrecover-based verification.',
     );
-
-    // Basic SIWE sanity check: the signed message must contain the claimed address
-    const lowerAddress = address.toLowerCase();
-    const messageContainsAddress = message.toLowerCase().includes(lowerAddress);
-    if (!messageContainsAddress) {
-      throw new BadRequestException('SIWE message does not reference the claimed address');
-    }
-
-    // Verify the signature buffer is a valid hex and has the right length (65 bytes = 130 hex chars)
-    const sigHex = signature.startsWith('0x') ? signature.slice(2) : signature;
-    if (!/^[0-9a-fA-F]{130}$/.test(sigHex)) {
-      throw new BadRequestException('Invalid signature format');
-    }
-
-    // Derive a deterministic check: SHA256(message) must not trivially mismatch
-    const msgHash = crypto.createHash('sha256').update(message).digest('hex');
-    this.logger.log(`SIWE verification for address=${address} msgHash=${msgHash}`);
-
-    wallet.isVerified = true;
-    return this.walletRepo.save(wallet);
   }
 }

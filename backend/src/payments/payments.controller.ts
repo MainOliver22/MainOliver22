@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -49,25 +51,39 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getDeposits(user.id, Number(page), Number(limit));
+    return this.paymentsService.getDeposits(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Post('deposit/webhook')
   @ApiOperation({ summary: 'Receive deposit webhook (public)' })
   handleWebhook(
-    @Body() body: unknown,
+    @Req() req: { rawBody?: Buffer },
     @Headers('stripe-signature') stripeSignature = '',
     @Headers('x-signature') xSignature = '',
   ) {
+    // rawBody is available because NestFactory is created with { rawBody: true }
+    if (!req.rawBody) {
+      throw new BadRequestException(
+        'Raw body unavailable — ensure rawBody: true is set in NestFactory.create',
+      );
+    }
+    const rawBody: Buffer = req.rawBody;
     const signature = stripeSignature || xSignature;
-    return this.paymentsService.handleDepositWebhook(body, signature);
+    return this.paymentsService.handleDepositWebhook(rawBody, signature);
   }
 
   @Post('withdraw/create')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a withdrawal request' })
-  createWithdrawal(@CurrentUser() user: User, @Body() dto: CreateWithdrawalDto) {
+  createWithdrawal(
+    @CurrentUser() user: User,
+    @Body() dto: CreateWithdrawalDto,
+  ) {
     return this.paymentsService.createWithdrawal(user.id, dto);
   }
 
@@ -82,7 +98,11 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getWithdrawals(user.id, Number(page), Number(limit));
+    return this.paymentsService.getWithdrawals(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('admin/deposits')
