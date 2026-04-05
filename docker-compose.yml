@@ -60,7 +60,7 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: https://api.qfx-finance.com
+      NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
       NEXT_PUBLIC_APP_NAME: InvestmentPlatform
 
   adminer:
