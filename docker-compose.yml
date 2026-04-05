@@ -57,6 +57,7 @@ services:
       args:
         NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
         NEXT_PUBLIC_APP_NAME: InvestmentPlatform
+        NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ${NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:-}
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
