@@ -14,6 +14,7 @@ export default function AdminUsersPage() {
     api.get(`/admin/users?page=${page}&limit=20`).then(r => { setUsers(r.data.users || []); setTotal(r.data.total || 0); });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchUsers(); }, [page]);
 
   const freeze = async (id: string) => { await api.patch(`/admin/users/${id}/freeze`); fetchUsers(); };

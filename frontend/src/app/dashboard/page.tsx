@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
 import { Balance, BotInstance } from '@/types';
-import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';

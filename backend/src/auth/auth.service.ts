@@ -73,7 +73,7 @@ export class AuthService {
       return { requires2fa: true, tempToken };
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens(user);
+    const { accessToken, refreshToken } = this.generateTokens(user);
     await this.storeRefreshToken(user.id, refreshToken, ipAddress, deviceInfo);
 
     return { accessToken, refreshToken, user: this.sanitizeUser(user) };
@@ -111,7 +111,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid TOTP code');
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens(user);
+    const { accessToken, refreshToken } = this.generateTokens(user);
     await this.storeRefreshToken(user.id, refreshToken, ipAddress, deviceInfo);
 
     return { accessToken, refreshToken, user: this.sanitizeUser(user) };
@@ -126,8 +126,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.generateTokens(session.user);
+    const { accessToken, refreshToken: newRefreshToken } = this.generateTokens(
+      session.user,
+    );
     // Rotate token
     session.revokedAt = new Date();
     await this.sessionRepo.save(session);
@@ -198,7 +199,10 @@ export class AuthService {
     return { message: '2FA disabled successfully' };
   }
 
-  private async generateTokens(user: User) {
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get<string>(

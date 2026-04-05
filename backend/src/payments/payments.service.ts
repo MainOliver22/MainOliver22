@@ -1,6 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const StripeConstructor = require('stripe');
-import type { Stripe as StripeInstance } from 'stripe';
+const StripeLib = require('stripe') as unknown as new (key: string) => {
+  paymentIntents: {
+    create(params: {
+      amount: number;
+      currency: string;
+      metadata?: Record<string, string>;
+    }): Promise<{ id: string; client_secret: string | null }>;
+  };
+  webhooks: {
+    constructEvent(
+      payload: string,
+      header: string | string[],
+      secret: string,
+    ): { type: string; data: { object: Record<string, unknown> } };
+  };
+};
 import {
   BadRequestException,
   Injectable,
@@ -31,7 +45,7 @@ import { User } from '../database/entities/user.entity';
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
-  private readonly stripe: StripeInstance | null;
+  private readonly stripe: InstanceType<typeof StripeLib> | null;
 
   constructor(
     @InjectRepository(Deposit)
@@ -53,9 +67,7 @@ export class PaymentsService {
     private readonly amlService: AmlService,
   ) {
     const stripeKey = this.configService.get<string>('PAYMENT_STRIPE_KEY');
-    this.stripe = stripeKey
-      ? (new StripeConstructor(stripeKey) as StripeInstance)
-      : null;
+    this.stripe = stripeKey ? new StripeLib(stripeKey) : null;
   }
 
   async createDeposit(userId: string, dto: CreateDepositDto): Promise<Deposit> {
@@ -294,7 +306,7 @@ export class PaymentsService {
       return { received: true };
     }
 
-    let event: any;
+    let event: { type: string; data: { object: Record<string, unknown> } };
     try {
       const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
       event = this.stripe.webhooks.constructEvent(

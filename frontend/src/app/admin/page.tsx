@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import api from '@/lib/api';
 import { Users, ShieldCheck, CreditCard, Bot } from 'lucide-react';
 

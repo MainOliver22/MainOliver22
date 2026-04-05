@@ -75,7 +75,7 @@ export class PriceFeedService {
                 resolve(parseFloat(parsed.price));
               }
             } catch (e) {
-              reject(e);
+              reject(e instanceof Error ? e : new Error(String(e)));
             }
           });
         })

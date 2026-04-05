@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -12,6 +12,7 @@ export default function AdminAuditPage() {
   const [action, setAction] = useState('');
 
   const fetchLogs = () => { api.get(`/admin/audit-logs?action=${action}&page=1&limit=50`).then(r => setLogs(r.data.logs || [])); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchLogs(); }, []);
 
   return (

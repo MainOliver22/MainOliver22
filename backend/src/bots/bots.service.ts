@@ -20,7 +20,6 @@ import { TradeSide } from '../database/enums/trade-side.enum';
 import { TradeStatus } from '../database/enums/trade-status.enum';
 import { CreateStrategyDto } from './dto/create-strategy.dto';
 import { CreateInstanceDto } from './dto/create-instance.dto';
-import { MOCK_USD_PRICES } from '../common/mock-prices';
 import { PriceFeedService } from '../common/price-feed.service';
 
 @Injectable()
