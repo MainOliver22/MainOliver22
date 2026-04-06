@@ -4,10 +4,14 @@ import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { StatCard } from '@/components/common/StatCard';
+import { DataTable, Column } from '@/components/tables/DataTable';
 import api from '@/lib/api';
 import { Asset, ExchangeOrder } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { ArrowRightLeft } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 8;
 
 export default function ExchangePage() {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -19,6 +23,7 @@ export default function ExchangePage() {
   const [loading, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     api.get('/assets').then(r => {
@@ -62,12 +67,50 @@ export default function ExchangePage() {
   const fromAsset = assets.find(a => a.id === fromAssetId);
   const toAsset = assets.find(a => a.id === toAssetId);
 
+  const totalPages = Math.max(1, Math.ceil(history.length / ITEMS_PER_PAGE));
+  const pageData = history.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+  const historyColumns: Column<ExchangeOrder>[] = [
+    {
+      key: 'fromAmount', header: 'From → To',
+      render: row => {
+        const from = assets.find(a => a.id === row.fromAssetId);
+        const to = assets.find(a => a.id === row.toAssetId);
+        return `${parseFloat(row.fromAmount).toFixed(4)} ${from?.symbol ?? ''} → ${parseFloat(row.toAmount).toFixed(4)} ${to?.symbol ?? ''}`;
+      },
+    },
+    { key: 'rate', header: 'Rate', render: row => parseFloat(row.rate).toFixed(6) },
+    {
+      key: 'status', header: 'Status', render: row => (
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${row.status === 'FILLED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+          {row.status}
+        </span>
+      ),
+    },
+    { key: 'createdAt', header: 'Date', render: row => formatDate(row.createdAt) },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">Exchange</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* Price tickers */}
+        {assets.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {assets.slice(0, 4).map(a => (
+              <StatCard
+                key={a.id}
+                title={a.symbol}
+                value={a.type === 'FIAT' ? '$1.00' : '—'}
+                subtitle={a.name}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader><CardTitle>Swap Assets</CardTitle></CardHeader>
             <div className="space-y-4">
@@ -102,19 +145,28 @@ export default function ExchangePage() {
             </div>
           </Card>
           <Card>
-            <CardHeader><CardTitle>Exchange History</CardTitle></CardHeader>
-            <div className="space-y-2">
-              {history.length === 0 ? <p className="text-sm text-gray-500">No exchanges yet</p> : history.slice(0, 10).map(o => (
-                <div key={o.id} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium">{parseFloat(o.fromAmount).toFixed(4)} → {parseFloat(o.toAmount).toFixed(4)}</p>
-                    <p className="text-xs text-gray-500">{formatDate(o.createdAt)}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${o.status === 'FILLED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{o.status}</span>
-                </div>
-              ))}
+            <CardHeader><CardTitle>How It Works</CardTitle></CardHeader>
+            <div className="text-sm text-gray-500 space-y-2">
+              <p>1. Select the asset you want to exchange from and to.</p>
+              <p>2. Enter the amount and click <strong>Get Quote</strong>.</p>
+              <p>3. Review the rate and fees, then click <strong>Execute</strong>.</p>
+              <p className="text-xs text-gray-400 pt-2">Quotes are valid for 30 seconds. Exchange rates are updated in real time.</p>
             </div>
           </Card>
+        </div>
+
+        <div>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">Exchange History</h2>
+          <DataTable
+            columns={historyColumns}
+            data={pageData}
+            keyExtractor={row => row.id}
+            page={page}
+            totalPages={totalPages}
+            onPrev={() => setPage(p => Math.max(1, p - 1))}
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+            emptyMessage="No exchanges yet"
+          />
         </div>
       </main>
     </div>

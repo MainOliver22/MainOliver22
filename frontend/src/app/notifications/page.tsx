@@ -3,9 +3,17 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/alert';
 import api from '@/lib/api';
 import { Notification } from '@/types';
 import { formatDate } from '@/lib/utils';
+
+function notificationVariant(type: string): 'info' | 'success' | 'warning' | 'error' {
+  if (type === 'SUCCESS' || type === 'DEPOSIT_CONFIRMED' || type === 'KYC_APPROVED') return 'success';
+  if (type === 'ERROR' || type === 'WITHDRAWAL_FAILED' || type === 'KYC_REJECTED') return 'error';
+  if (type === 'WARNING' || type === 'BOT_STOPPED') return 'warning';
+  return 'info';
+}
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -19,6 +27,10 @@ export default function NotificationsPage() {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
   };
 
+  const dismiss = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -26,16 +38,27 @@ export default function NotificationsPage() {
         <h1 className="text-2xl font-bold mb-6">Notifications</h1>
         <Card>
           <CardHeader><CardTitle>All Notifications</CardTitle></CardHeader>
-          {notifications.length === 0 ? <p className="text-sm text-gray-500">No notifications</p> : (
+          {notifications.length === 0 ? (
+            <p className="text-sm text-gray-500">No notifications</p>
+          ) : (
             <div className="space-y-3">
               {notifications.map(n => (
-                <div key={n.id} className={`flex justify-between items-start p-3 rounded-lg ${n.isRead ? 'bg-gray-50' : 'bg-blue-50'}`}>
-                  <div>
-                    <p className="text-sm font-semibold">{n.title}</p>
-                    <p className="text-sm text-gray-600">{n.message}</p>
-                    <p className="text-xs text-gray-400">{formatDate(n.createdAt)}</p>
-                  </div>
-                  {!n.isRead && <Button variant="ghost" size="sm" onClick={() => markRead(n.id)}>Mark read</Button>}
+                <div key={n.id} className={n.isRead ? 'opacity-60' : ''}>
+                  <Alert
+                    variant={notificationVariant(n.type)}
+                    title={n.title}
+                    onDismiss={() => dismiss(n.id)}
+                  >
+                    <p>{n.message}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs opacity-70">{formatDate(n.createdAt)}</span>
+                      {!n.isRead && (
+                        <Button variant="ghost" size="sm" onClick={() => markRead(n.id)}>
+                          Mark read
+                        </Button>
+                      )}
+                    </div>
+                  </Alert>
                 </div>
               ))}
             </div>

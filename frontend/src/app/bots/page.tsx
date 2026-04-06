@@ -4,10 +4,11 @@ import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Toggle } from '@/components/ui/Toggle';
 import api from '@/lib/api';
 import { BotStrategy, BotInstance } from '@/types';
 import { formatDate } from '@/lib/utils';
-import { TrendingUp, TrendingDown, Pause, Square } from 'lucide-react';
+import { TrendingUp, TrendingDown, Square } from 'lucide-react';
 
 export default function BotsPage() {
   const [strategies, setStrategies] = useState<BotStrategy[]>([]);
@@ -99,8 +100,15 @@ export default function BotsPage() {
                     </div>
                     <p className="text-xs text-gray-500">{inst.status}</p>
                   </div>
-                  <div className="flex gap-2">
-                    {inst.status === 'ACTIVE' && <Button variant="secondary" size="sm" onClick={() => pauseBot(inst.id)}><Pause className="h-3 w-3" /></Button>}
+                  <div className="flex gap-2 items-center">
+                    {inst.status !== 'STOPPED' && (
+                      <Toggle
+                        checked={inst.status === 'ACTIVE'}
+                        onChange={(active) => active ? undefined : pauseBot(inst.id)}
+                        label={inst.status === 'ACTIVE' ? 'Active' : 'Paused'}
+                        size="sm"
+                      />
+                    )}
                     <Button variant="danger" size="sm" onClick={() => stopBot(inst.id)}><Square className="h-3 w-3" /></Button>
                   </div>
                 </div>
