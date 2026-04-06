@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const StripeConstructor = require('stripe');
-import type { Stripe as StripeInstance } from 'stripe';
 import {
   BadRequestException,
   Injectable,
@@ -28,10 +25,40 @@ import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 import { AmlService } from '../common/aml.service';
 import { User } from '../database/entities/user.entity';
 
+interface StripePaymentIntent {
+  id: string;
+  client_secret: string | null;
+}
+
+interface StripeWebhookEvent {
+  type: string;
+  data: { object: unknown };
+}
+
+interface StripeClient {
+  paymentIntents: {
+    create(params: {
+      amount: number;
+      currency: string;
+      metadata?: Record<string, string>;
+    }): Promise<StripePaymentIntent>;
+  };
+  webhooks: {
+    constructEvent(
+      payload: string,
+      signature: string,
+      secret: string,
+    ): StripeWebhookEvent;
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const createStripe = require('stripe') as (key: string) => StripeClient;
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
-  private readonly stripe: StripeInstance | null;
+  private readonly stripe: StripeClient | null;
 
   constructor(
     @InjectRepository(Deposit)
@@ -53,7 +80,7 @@ export class PaymentsService {
     private readonly amlService: AmlService,
   ) {
     const stripeKey = this.configService.get<string>('PAYMENT_STRIPE_KEY');
-    this.stripe = stripeKey ? (new StripeConstructor(stripeKey) as StripeInstance) : null;
+    this.stripe = stripeKey ? createStripe(stripeKey) : null;
   }
 
   async createDeposit(userId: string, dto: CreateDepositDto): Promise<Deposit> {
@@ -84,12 +111,19 @@ export class PaymentsService {
         method: dto.method,
         provider: 'stripe',
         externalId: paymentIntent.id,
-        metadata: { ...(dto.metadata ?? {}), paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret },
+        metadata: {
+          ...(dto.metadata ?? {}),
+          paymentIntentId: paymentIntent.id,
+          clientSecret: paymentIntent.client_secret,
+        },
         status: DepositStatus.PENDING,
       });
       await this.depositRepo.save(deposit);
 
-      return this.depositRepo.findOne({ where: { id: deposit.id }, relations: ['asset'] }) as Promise<Deposit>;
+      return this.depositRepo.findOne({
+        where: { id: deposit.id },
+        relations: ['asset'],
+      }) as Promise<Deposit>;
     }
 
     const tx = await this.ledgerService.createTransaction(
@@ -139,10 +173,15 @@ export class PaymentsService {
       description: `Deposit credit for user ${userId}`,
     });
 
-    await this.depositRepo.update(deposit.id, { status: DepositStatus.CONFIRMED });
+    await this.depositRepo.update(deposit.id, {
+      status: DepositStatus.CONFIRMED,
+    });
     await this.ledgerService.completeTransaction(tx.id);
 
-    return this.depositRepo.findOne({ where: { id: deposit.id }, relations: ['asset'] }) as Promise<Deposit>;
+    return this.depositRepo.findOne({
+      where: { id: deposit.id },
+      relations: ['asset'],
+    }) as Promise<Deposit>;
   }
 
   async getDeposits(
@@ -160,21 +199,31 @@ export class PaymentsService {
     return { items, total, page, limit };
   }
 
-  async createWithdrawal(userId: string, dto: CreateWithdrawalDto): Promise<Withdrawal> {
+  async createWithdrawal(
+    userId: string,
+    dto: CreateWithdrawalDto,
+  ): Promise<Withdrawal> {
     const asset = await this.assetRepo.findOne({ where: { id: dto.assetId } });
     if (!asset) throw new NotFoundException(`Asset ${dto.assetId} not found`);
 
     // AML/sanctions screening
     const addressScreen = this.amlService.screenAddress(dto.toAddress ?? null);
     if (addressScreen.blocked) {
-      throw new BadRequestException('Withdrawal blocked: sanctions screening failed');
+      throw new BadRequestException(
+        'Withdrawal blocked: sanctions screening failed',
+      );
     }
 
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (user) {
-      const nameScreen = this.amlService.screenName(user.firstName, user.lastName);
+      const nameScreen = this.amlService.screenName(
+        user.firstName,
+        user.lastName,
+      );
       if (nameScreen.blocked) {
-        throw new BadRequestException('Withdrawal blocked: sanctions screening failed');
+        throw new BadRequestException(
+          'Withdrawal blocked: sanctions screening failed',
+        );
       }
     }
 
@@ -223,14 +272,22 @@ export class PaymentsService {
       description: `Withdrawal lock for user ${userId}`,
     });
 
-    return this.withdrawalRepo.findOne({ where: { id: withdrawal.id }, relations: ['asset'] }) as Promise<Withdrawal>;
+    return this.withdrawalRepo.findOne({
+      where: { id: withdrawal.id },
+      relations: ['asset'],
+    }) as Promise<Withdrawal>;
   }
 
   async getWithdrawals(
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: Withdrawal[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: Withdrawal[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const [items, total] = await this.withdrawalRepo.findAndCount({
       where: { userId },
       relations: ['asset'],
@@ -241,7 +298,10 @@ export class PaymentsService {
     return { items, total, page, limit };
   }
 
-  async handleDepositWebhook(body: unknown, signature: string): Promise<{ received: boolean }> {
+  async handleDepositWebhook(
+    body: unknown,
+    signature: string,
+  ): Promise<{ received: boolean }> {
     this.logger.log(`Webhook received. Signature: ${signature}`);
 
     if (!this.stripe) {
@@ -249,24 +309,33 @@ export class PaymentsService {
       return { received: true };
     }
 
-    const webhookSecret = this.configService.get<string>('PAYMENT_STRIPE_WEBHOOK_SECRET');
+    const webhookSecret = this.configService.get<string>(
+      'PAYMENT_STRIPE_WEBHOOK_SECRET',
+    );
     if (!webhookSecret) {
-      this.logger.warn('PAYMENT_STRIPE_WEBHOOK_SECRET not set — skipping signature verification');
+      this.logger.warn(
+        'PAYMENT_STRIPE_WEBHOOK_SECRET not set — skipping signature verification',
+      );
       return { received: true };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let event: any;
+    let event: StripeWebhookEvent;
     try {
       const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
-      event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      event = this.stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        webhookSecret,
+      );
     } catch (err) {
-      this.logger.error(`Stripe webhook signature verification failed: ${(err as Error).message}`);
+      this.logger.error(
+        `Stripe webhook signature verification failed: ${(err as Error).message}`,
+      );
       return { received: false };
     }
 
     if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object as { id: string; client_secret: string | null };
+      const paymentIntent = event.data.object as StripePaymentIntent;
       const deposit = await this.depositRepo.findOne({
         where: { externalId: paymentIntent.id },
         relations: ['asset'],
@@ -310,31 +379,46 @@ export class PaymentsService {
           description: `Stripe deposit credit for user ${deposit.userId}`,
         });
 
-        await this.depositRepo.update(deposit.id, { status: DepositStatus.CONFIRMED });
+        await this.depositRepo.update(deposit.id, {
+          status: DepositStatus.CONFIRMED,
+        });
         await this.ledgerService.completeTransaction(tx.id);
-        this.logger.log(`Stripe deposit ${deposit.id} confirmed for user ${deposit.userId}`);
+        this.logger.log(
+          `Stripe deposit ${deposit.id} confirmed for user ${deposit.userId}`,
+        );
       }
     }
 
     return { received: true };
   }
 
-  async approveWithdrawal(withdrawalId: string, adminUserId: string): Promise<Withdrawal> {
-    const withdrawal = await this.withdrawalRepo.findOne({ where: { id: withdrawalId } });
-    if (!withdrawal) throw new NotFoundException(`Withdrawal ${withdrawalId} not found`);
+  async approveWithdrawal(
+    withdrawalId: string,
+    adminUserId: string,
+  ): Promise<Withdrawal> {
+    const withdrawal = await this.withdrawalRepo.findOne({
+      where: { id: withdrawalId },
+    });
+    if (!withdrawal)
+      throw new NotFoundException(`Withdrawal ${withdrawalId} not found`);
 
     await this.withdrawalRepo.update(withdrawalId, {
       status: WithdrawalStatus.APPROVED,
       approvedBy: adminUserId,
       approvedAt: new Date(),
     });
-    await this.withdrawalRepo.update(withdrawalId, { status: WithdrawalStatus.COMPLETED });
+    await this.withdrawalRepo.update(withdrawalId, {
+      status: WithdrawalStatus.COMPLETED,
+    });
 
     if (withdrawal.transactionId) {
       await this.ledgerService.completeTransaction(withdrawal.transactionId);
     }
 
-    return this.withdrawalRepo.findOne({ where: { id: withdrawalId }, relations: ['asset'] }) as Promise<Withdrawal>;
+    return this.withdrawalRepo.findOne({
+      where: { id: withdrawalId },
+      relations: ['asset'],
+    }) as Promise<Withdrawal>;
   }
 
   async rejectWithdrawal(
@@ -342,8 +426,11 @@ export class PaymentsService {
     adminUserId: string,
     reason: string,
   ): Promise<Withdrawal> {
-    const withdrawal = await this.withdrawalRepo.findOne({ where: { id: withdrawalId } });
-    if (!withdrawal) throw new NotFoundException(`Withdrawal ${withdrawalId} not found`);
+    const withdrawal = await this.withdrawalRepo.findOne({
+      where: { id: withdrawalId },
+    });
+    if (!withdrawal)
+      throw new NotFoundException(`Withdrawal ${withdrawalId} not found`);
 
     await this.withdrawalRepo.update(withdrawalId, {
       status: WithdrawalStatus.REJECTED,
@@ -381,7 +468,10 @@ export class PaymentsService {
       await this.ledgerService.failTransaction(withdrawal.transactionId);
     }
 
-    return this.withdrawalRepo.findOne({ where: { id: withdrawalId }, relations: ['asset'] }) as Promise<Withdrawal>;
+    return this.withdrawalRepo.findOne({
+      where: { id: withdrawalId },
+      relations: ['asset'],
+    }) as Promise<Withdrawal>;
   }
 
   async getAllDeposits(
@@ -400,7 +490,12 @@ export class PaymentsService {
   async getAllWithdrawals(
     page: number,
     limit: number,
-  ): Promise<{ items: Withdrawal[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    items: Withdrawal[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const [items, total] = await this.withdrawalRepo.findAndCount({
       relations: ['asset', 'user'],
       order: { createdAt: 'DESC' },

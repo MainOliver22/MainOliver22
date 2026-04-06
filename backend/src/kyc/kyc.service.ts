@@ -36,11 +36,18 @@ export class KycService {
   }
 
   private get frontendUrl(): string {
-    return this.configService.get<string>('FRONTEND_URL', 'https://app.example.com');
+    return this.configService.get<string>(
+      'FRONTEND_URL',
+      'https://app.example.com',
+    );
   }
 
   /** Make an HTTPS request to the Onfido REST API v3.6 */
-  private onfidoRequest<T>(method: string, path: string, body?: unknown): Promise<T> {
+  private onfidoRequest<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       const data = body ? JSON.stringify(body) : undefined;
       const req = https.request(
@@ -56,7 +63,9 @@ export class KycService {
         },
         (res) => {
           let raw = '';
-          res.on('data', (chunk: Buffer) => { raw += chunk.toString(); });
+          res.on('data', (chunk: Buffer) => {
+            raw += chunk.toString();
+          });
           res.on('end', () => {
             try {
               const parsed = JSON.parse(raw) as T;
@@ -82,7 +91,9 @@ export class KycService {
       where: { userId, status: KycStatus.PENDING },
     });
     if (existing) {
-      throw new ConflictException('A KYC case is already pending for this user');
+      throw new ConflictException(
+        'A KYC case is already pending for this user',
+      );
     }
 
     if (!this.apiKey) {
@@ -103,10 +114,14 @@ export class KycService {
     }
 
     // Create Onfido applicant
-    const applicant = await this.onfidoRequest<{ id: string }>('POST', '/applicants', {
-      first_name: 'Unknown',
-      last_name: 'User',
-    });
+    const applicant = await this.onfidoRequest<{ id: string }>(
+      'POST',
+      '/applicants',
+      {
+        first_name: 'Unknown',
+        last_name: 'User',
+      },
+    );
 
     const kycCase = this.kycCaseRepo.create({
       userId,
@@ -119,10 +134,14 @@ export class KycService {
     await this.kycCaseRepo.save(kycCase);
 
     // Generate SDK token
-    const tokenResponse = await this.onfidoRequest<{ token: string }>('POST', '/sdk_token', {
-      applicant_id: applicant.id,
-      referrer: `${this.frontendUrl}/*`,
-    });
+    const tokenResponse = await this.onfidoRequest<{ token: string }>(
+      'POST',
+      '/sdk_token',
+      {
+        applicant_id: applicant.id,
+        referrer: `${this.frontendUrl}/*`,
+      },
+    );
 
     return {
       caseId: kycCase.id,
@@ -153,7 +172,12 @@ export class KycService {
         .createHmac('sha256', secret)
         .update(JSON.stringify(body))
         .digest('hex');
-      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+      if (
+        !crypto.timingSafeEqual(
+          Buffer.from(signature),
+          Buffer.from(expectedSig),
+        )
+      ) {
         throw new BadRequestException('Invalid webhook signature');
       }
 
@@ -181,11 +205,16 @@ export class KycService {
             const mapped = result ? statusMap[result] : undefined;
             if (mapped) {
               kycCase.status = mapped;
-              if (mapped === KycStatus.APPROVED || mapped === KycStatus.REJECTED) {
+              if (
+                mapped === KycStatus.APPROVED ||
+                mapped === KycStatus.REJECTED
+              ) {
                 kycCase.reviewedAt = new Date();
               }
               await this.kycCaseRepo.save(kycCase);
-              this.logger.log(`KYC case ${kycCase.id} updated to ${mapped} (href=${href})`);
+              this.logger.log(
+                `KYC case ${kycCase.id} updated to ${mapped} (href=${href})`,
+              );
             }
           }
         }
@@ -196,7 +225,9 @@ export class KycService {
       const incomingStatus = body['status'] as string | undefined;
 
       if (caseId && incomingStatus) {
-        const kycCase = await this.kycCaseRepo.findOne({ where: { id: caseId } });
+        const kycCase = await this.kycCaseRepo.findOne({
+          where: { id: caseId },
+        });
         if (kycCase) {
           const statusMap: Record<string, KycStatus> = {
             APPROVED: KycStatus.APPROVED,
@@ -206,7 +237,10 @@ export class KycService {
           const mapped = statusMap[incomingStatus.toUpperCase()];
           if (mapped) {
             kycCase.status = mapped;
-            if (mapped === KycStatus.APPROVED || mapped === KycStatus.REJECTED) {
+            if (
+              mapped === KycStatus.APPROVED ||
+              mapped === KycStatus.REJECTED
+            ) {
               kycCase.reviewedAt = new Date();
             }
             await this.kycCaseRepo.save(kycCase);

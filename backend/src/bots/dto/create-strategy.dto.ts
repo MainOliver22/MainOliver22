@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsNumberString, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumberString,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { BotStrategyType } from '../../database/enums/bot-strategy-type.enum';
 import { RiskLevel } from '../../database/enums/risk-level.enum';
 

@@ -12,7 +12,13 @@ import { ExchangeController } from './exchange.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ExchangeOrder, Asset, Account, Transaction, LedgerEntry]),
+    TypeOrmModule.forFeature([
+      ExchangeOrder,
+      Asset,
+      Account,
+      Transaction,
+      LedgerEntry,
+    ]),
     LedgerModule,
     CommonModule,
   ],

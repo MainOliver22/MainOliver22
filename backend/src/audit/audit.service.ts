@@ -6,7 +6,9 @@ import { User } from '../database/entities/user.entity';
 
 @Injectable()
 export class AuditService {
-  constructor(@InjectRepository(AuditLog) private auditRepo: Repository<AuditLog>) {}
+  constructor(
+    @InjectRepository(AuditLog) private auditRepo: Repository<AuditLog>,
+  ) {}
 
   async log(params: {
     actor?: User;
@@ -43,7 +45,8 @@ export class AuditService {
       .createQueryBuilder('log')
       .orderBy('log.createdAt', 'DESC');
     if (actorId) qb.andWhere('log.actorId = :actorId', { actorId });
-    if (action) qb.andWhere('log.action ILIKE :action', { action: `%${action}%` });
+    if (action)
+      qb.andWhere('log.action ILIKE :action', { action: `%${action}%` });
     if (targetType) qb.andWhere('log.targetType = :targetType', { targetType });
     qb.skip((page - 1) * limit).take(limit);
     const [logs, total] = await qb.getManyAndCount();
