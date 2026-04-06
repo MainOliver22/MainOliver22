@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api';
-import { formatDate } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 
 interface KycCaseAdmin {
   id: string;
