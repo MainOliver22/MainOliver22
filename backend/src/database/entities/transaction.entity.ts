@@ -19,7 +19,11 @@ export class Transaction {
   @Column({ type: 'enum', enum: TransactionType })
   type!: TransactionType;
 
-  @Column({ type: 'enum', enum: TransactionStatus, default: TransactionStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+    default: TransactionStatus.PENDING,
+  })
   status!: TransactionStatus;
 
   @Index({ unique: true })

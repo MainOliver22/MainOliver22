@@ -8,7 +8,9 @@ import { LedgerService } from './ledger.service';
 import { LedgerController } from './ledger.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account, LedgerEntry, Transaction, Asset])],
+  imports: [
+    TypeOrmModule.forFeature([Account, LedgerEntry, Transaction, Asset]),
+  ],
   providers: [LedgerService],
   controllers: [LedgerController],
   exports: [LedgerService],

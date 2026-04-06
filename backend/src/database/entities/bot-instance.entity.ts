@@ -25,7 +25,11 @@ export class BotInstance {
   @Column({ type: 'uuid' })
   strategyId!: string;
 
-  @Column({ type: 'enum', enum: BotInstanceStatus, default: BotInstanceStatus.ACTIVE })
+  @Column({
+    type: 'enum',
+    enum: BotInstanceStatus,
+    default: BotInstanceStatus.ACTIVE,
+  })
   status!: BotInstanceStatus;
 
   @Column({ type: 'decimal', precision: 18, scale: 8 })
@@ -67,7 +71,9 @@ export class BotInstance {
   user!: User;
 
   @Index()
-  @ManyToOne(() => BotStrategy, (strategy) => strategy.instances, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => BotStrategy, (strategy) => strategy.instances, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'strategyId' })
   strategy!: BotStrategy;
 

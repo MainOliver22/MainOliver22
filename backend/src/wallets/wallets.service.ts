@@ -25,7 +25,9 @@ export class WalletsService {
       where: { userId, address: dto.address, chain: dto.chain },
     });
     if (existing) {
-      throw new ConflictException('This wallet address is already connected for this chain');
+      throw new ConflictException(
+        'This wallet address is already connected for this chain',
+      );
     }
 
     const wallet = this.walletRepo.create({
@@ -82,7 +84,9 @@ export class WalletsService {
     message: string,
     signature: string,
   ): Promise<Wallet> {
-    const wallet = await this.walletRepo.findOne({ where: { userId, address } });
+    const wallet = await this.walletRepo.findOne({
+      where: { userId, address },
+    });
     if (!wallet) {
       throw new NotFoundException('Wallet not found for this user and address');
     }
@@ -96,7 +100,9 @@ export class WalletsService {
     const lowerAddress = address.toLowerCase();
     const messageContainsAddress = message.toLowerCase().includes(lowerAddress);
     if (!messageContainsAddress) {
-      throw new BadRequestException('SIWE message does not reference the claimed address');
+      throw new BadRequestException(
+        'SIWE message does not reference the claimed address',
+      );
     }
 
     // Verify the signature buffer is a valid hex and has the right length (65 bytes = 130 hex chars)
@@ -107,7 +113,9 @@ export class WalletsService {
 
     // Derive a deterministic check: SHA256(message) must not trivially mismatch
     const msgHash = crypto.createHash('sha256').update(message).digest('hex');
-    this.logger.log(`SIWE verification for address=${address} msgHash=${msgHash}`);
+    this.logger.log(
+      `SIWE verification for address=${address} msgHash=${msgHash}`,
+    );
 
     wallet.isVerified = true;
     return this.walletRepo.save(wallet);
