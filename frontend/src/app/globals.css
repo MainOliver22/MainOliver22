@@ -10,6 +10,21 @@
   --color-foreground: var(--foreground);
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
+
+  /* TailAdmin design tokens — defined directly so they're available as Tailwind utilities */
+  --color-ta-primary: #3C50E0;
+  --color-ta-primary-hover: #3346D3;
+  --color-ta-dark: #1C2434;
+  --color-ta-dark-2: #24303F;
+  --color-ta-dark-3: #313D4A;
+  --color-ta-body: #64748B;
+  --color-ta-border: #E2E8F0;
+  --color-ta-surface: #F7F9FC;
+  --color-ta-success: #219653;
+  --color-ta-danger: #D34053;
+  --color-ta-warning: #FFA70B;
+  --color-ta-info: #80CAEE;
+  --color-ta-sidebar-text: #8899A8;
 }
 
 @media (prefers-color-scheme: dark) {
