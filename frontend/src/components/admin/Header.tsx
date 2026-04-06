@@ -14,7 +14,6 @@ export default function AdminHeader() {
         <input
           type="text"
           aria-label="Search"
-          aria-label="Search"
           placeholder="Search..."
           className="w-64 rounded-lg border border-[#E2E8F0] bg-[#F7F9FC] py-2 pl-9 pr-4 text-sm text-[#1C2434] placeholder-[#64748B] outline-none focus:border-[#3C50E0] transition-colors"
         />
