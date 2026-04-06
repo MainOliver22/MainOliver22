@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* TailAdmin design tokens */
+  --color-ta-primary: #3C50E0;
+  --color-ta-primary-hover: #3346D3;
+  --color-ta-dark: #1C2434;
+  --color-ta-dark-2: #24303F;
+  --color-ta-dark-3: #313D4A;
+  --color-ta-body: #64748B;
+  --color-ta-border: #E2E8F0;
+  --color-ta-surface: #F7F9FC;
+  --color-ta-success: #219653;
+  --color-ta-danger: #D34053;
+  --color-ta-warning: #FFA70B;
+  --color-ta-info: #80CAEE;
+  --color-ta-sidebar-text: #8899A8;
 }
 
 @theme inline {
@@ -10,6 +25,20 @@
   --color-foreground: var(--foreground);
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
+
+  /* Expose TailAdmin tokens to Tailwind utilities */
+  --color-ta-primary: var(--color-ta-primary);
+  --color-ta-dark: var(--color-ta-dark);
+  --color-ta-dark-2: var(--color-ta-dark-2);
+  --color-ta-dark-3: var(--color-ta-dark-3);
+  --color-ta-body: var(--color-ta-body);
+  --color-ta-border: var(--color-ta-border);
+  --color-ta-surface: var(--color-ta-surface);
+  --color-ta-success: var(--color-ta-success);
+  --color-ta-danger: var(--color-ta-danger);
+  --color-ta-warning: var(--color-ta-warning);
+  --color-ta-info: var(--color-ta-info);
+  --color-ta-sidebar-text: var(--color-ta-sidebar-text);
 }
 
 @media (prefers-color-scheme: dark) {
