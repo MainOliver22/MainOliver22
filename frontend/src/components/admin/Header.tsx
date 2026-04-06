@@ -27,7 +27,7 @@ export default function AdminHeader() {
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#3C50E0]" />
+          <span aria-hidden="true" className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#3C50E0]" />
         </button>
 
         {/* Divider */}
