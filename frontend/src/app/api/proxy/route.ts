@@ -5,8 +5,9 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000/api';
 
 function buildBackendUrl(endpoint: string | null): string | null {
   if (!endpoint) return null;
-  // Prevent path traversal: only allow alphanumeric, slashes, hyphens, underscores, and query strings
-  if (!/^[\w\-/]+$/.test(endpoint)) return null;
+  // Prevent path traversal: reject any segment containing '..' and only allow
+  // alphanumeric characters, slashes, hyphens, and underscores.
+  if (endpoint.includes('..') || !/^[\w\-/]+$/.test(endpoint)) return null;
   return `${BACKEND_URL.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
 }
 
