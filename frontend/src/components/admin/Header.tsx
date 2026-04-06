@@ -36,7 +36,7 @@ export default function AdminHeader() {
         {/* User info */}
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3C50E0] text-sm font-semibold text-white">
-            {user?.firstName?.[0]?.toUpperCase() ?? 'A'}
+            {user?.firstName?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className="hidden md:block">
             <p className="text-sm font-semibold text-[#1C2434]">

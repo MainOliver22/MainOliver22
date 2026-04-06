@@ -70,7 +70,7 @@ export default function ChartRevenue({ data }: ChartRevenueProps) {
                 boxShadow: '0 4px 6px -1px rgba(0,0,0,0.07)',
               }}
               formatter={(v, name) => [
-                `$${Number(v ?? 0).toFixed(2)}`,
+                `$${(typeof v === 'number' ? v : 0).toFixed(2)}`,
                 String(name ?? ''),
               ]}
             />
