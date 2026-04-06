@@ -2,10 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, ChevronDown, LayoutDashboard, Bot, ArrowRightLeft, Wallet, LogOut, ShieldCheck } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Bot, ArrowRightLeft, Wallet, LogOut, ShieldCheck } from 'lucide-react';
 
-export function UserMenu() {
-  const { user, logout } = useAuth();
+export function UserMenu() {  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -86,8 +85,4 @@ export function UserMenu() {
       )}
     </div>
   );
-}
-
-export function UserIcon() {
-  return <User className="h-5 w-5" />;
 }

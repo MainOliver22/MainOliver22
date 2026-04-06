@@ -17,13 +17,10 @@ import { Wallet, TrendingUp, Bot, Activity } from 'lucide-react';
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
 
 function buildPortfolioChartData(balances: Balance[]): ChartDataPoint[] {
-  // Generate last-7-day mock trend based on current balances (real data would come from portfolio history API)
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
   const total = balances.reduce((s, b) => s + parseFloat(b.balance), 0);
-  return days.map((label, i) => ({
-    label,
-    value: parseFloat(((total * (0.88 + i * 0.02)) || 0).toFixed(2)),
-  }));
+  // Show flat line at current total until a real portfolio history API is available
+  return days.map(label => ({ label, value: parseFloat(total.toFixed(2)) }));
 }
 
 export default function DashboardPage() {
@@ -104,8 +101,6 @@ export default function DashboardPage() {
             value={`$${totalValue.toFixed(2)}`}
             subtitle="All assets combined"
             icon={<Wallet className="h-5 w-5" />}
-            trend={2.4}
-            trendLabel="vs last week"
           />
           <StatCard
             title="Bot P&L"

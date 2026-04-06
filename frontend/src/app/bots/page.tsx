@@ -44,6 +44,11 @@ export default function BotsPage() {
     fetchData();
   };
 
+  const resumeBot = async (id: string) => {
+    await api.patch(`/bots/instances/${id}/resume`);
+    fetchData();
+  };
+
   const stopBot = async (id: string) => {
     await api.patch(`/bots/instances/${id}/stop`);
     fetchData();
@@ -104,7 +109,7 @@ export default function BotsPage() {
                     {inst.status !== 'STOPPED' && (
                       <Toggle
                         checked={inst.status === 'ACTIVE'}
-                        onChange={(active) => active ? undefined : pauseBot(inst.id)}
+                        onChange={(active) => active ? resumeBot(inst.id) : pauseBot(inst.id)}
                         label={inst.status === 'ACTIVE' ? 'Active' : 'Paused'}
                         size="sm"
                       />
