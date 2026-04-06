@@ -21,7 +21,15 @@ export default function AdminAuditPage() {
   const [action, setAction] = useState('');
 
   const fetchLogs = () => {
-    api.get(`/admin/audit-logs?action=${action}&page=1&limit=50`).then(r => setLogs(r.data.logs || []));
+    api
+      .get('/admin/audit-logs', {
+        params: {
+          action,
+          page: 1,
+          limit: 50,
+        },
+      })
+      .then(r => setLogs(r.data.logs || []));
   };
   useEffect(() => { fetchLogs(); }, []);
 
