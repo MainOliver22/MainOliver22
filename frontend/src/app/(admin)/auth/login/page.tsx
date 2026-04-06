@@ -1,12 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import api from '@/lib/api';
-import { setTokens } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -19,7 +17,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { login } = useAuth();
   const [error, setError] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -28,13 +26,10 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     setError('');
     try {
-      const res = await api.post('/auth/login', data);
-      setTokens(res.data.accessToken, res.data.refreshToken);
-      router.push('/dashboard');
+      await login(data.email, data.password);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed';
       const axiosErr = err as { response?: { data?: { message?: string } } };
-      setError(axiosErr?.response?.data?.message || message);
+      setError(axiosErr?.response?.data?.message || 'Login failed. Please check your credentials.');
     }
   };
 
