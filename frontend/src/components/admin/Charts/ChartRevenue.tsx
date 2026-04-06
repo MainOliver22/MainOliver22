@@ -1,4 +1,5 @@
 'use client';
+import { useId } from 'react';
 import {
   AreaChart,
   Area,
@@ -17,14 +18,24 @@ export interface ChartRevenueDataPoint {
 
 interface ChartRevenueProps {
   data: ChartRevenueDataPoint[];
+  /** When true, shows a "Sample data" badge in the chart header */
+  sampleData?: boolean;
 }
 
-export default function ChartRevenue({ data }: ChartRevenueProps) {
+export default function ChartRevenue({ data, sampleData }: ChartRevenueProps) {
+  const uid = useId();
+  const depositsGradId = `depositsGrad-${uid}`;
+  const withdrawalsGradId = `withdrawalsGrad-${uid}`;
   return (
     <div className="rounded-[10px] border border-[#E2E8F0] bg-white p-6 shadow-sm">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h4 className="text-lg font-semibold text-[#1C2434]">Revenue Overview</h4>
         <div className="flex items-center gap-6">
+          {sampleData && (
+            <span className="rounded-full bg-[#FFF3C4] px-2 py-0.5 text-[10px] font-medium text-[#92601F]">
+              Sample data
+            </span>
+          )}
           <div className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-full bg-[#3C50E0]" />
             <span className="text-xs text-[#64748B]">Deposits</span>
@@ -39,11 +50,11 @@ export default function ChartRevenue({ data }: ChartRevenueProps) {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <defs>
-              <linearGradient id="depositsGrad" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={depositsGradId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3C50E0" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#3C50E0" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="withdrawalsGrad" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={withdrawalsGradId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#80CAEE" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#80CAEE" stopOpacity={0} />
               </linearGradient>
@@ -79,14 +90,14 @@ export default function ChartRevenue({ data }: ChartRevenueProps) {
               dataKey="deposits"
               stroke="#3C50E0"
               strokeWidth={2}
-              fill="url(#depositsGrad)"
+              fill={`url(#${depositsGradId})`}
             />
             <Area
               type="monotone"
               dataKey="withdrawals"
               stroke="#80CAEE"
               strokeWidth={2}
-              fill="url(#withdrawalsGrad)"
+              fill={`url(#${withdrawalsGradId})`}
             />
           </AreaChart>
         </ResponsiveContainer>

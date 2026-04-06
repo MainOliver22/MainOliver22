@@ -40,7 +40,9 @@ export default function AdminHeader() {
           </div>
           <div className="hidden md:block">
             <p className="text-sm font-semibold text-[#1C2434]">
-              {user?.firstName} {user?.lastName}
+              {user?.firstName && user?.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : (user?.email ?? 'Admin')}
             </p>
             <p className="text-xs text-[#64748B]">{user?.role ?? 'Admin'}</p>
           </div>

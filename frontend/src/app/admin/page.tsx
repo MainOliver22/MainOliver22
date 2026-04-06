@@ -79,8 +79,8 @@ export default function AdminDashboard() {
         </CardDataStats>
       </div>
 
-      {/* Revenue Chart */}
-      <ChartRevenue data={CHART_DATA} />
+      {/* Revenue Chart — placeholder data until /admin/revenue endpoint is wired */}
+      <ChartRevenue data={CHART_DATA} sampleData />
     </div>
   );
 }
