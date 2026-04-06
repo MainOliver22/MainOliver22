@@ -6,8 +6,7 @@ interface CardDataStatsProps {
   title: string;
   total: string | number;
   rate?: string;
-  levelUp?: boolean;
-  levelDown?: boolean;
+  trend?: 'up' | 'down';
   iconBg?: string;
   children: ReactNode;
 }
@@ -16,8 +15,7 @@ export default function CardDataStats({
   title,
   total,
   rate,
-  levelUp,
-  levelDown,
+  trend,
   iconBg = 'bg-[#3C50E0]',
   children,
 }: CardDataStatsProps) {
@@ -35,13 +33,13 @@ export default function CardDataStats({
           <span
             className={cn(
               'flex shrink-0 items-center gap-1 text-sm font-medium',
-              levelUp && 'text-[#219653]',
-              levelDown && 'text-[#D34053]',
-              !levelUp && !levelDown && 'text-[#64748B]',
+              trend === 'up' && 'text-[#219653]',
+              trend === 'down' && 'text-[#D34053]',
+              !trend && 'text-[#64748B]',
             )}
           >
-            {levelUp && <TrendingUp className="h-3.5 w-3.5" />}
-            {levelDown && <TrendingDown className="h-3.5 w-3.5" />}
+            {trend === 'up' && <TrendingUp className="h-3.5 w-3.5" />}
+            {trend === 'down' && <TrendingDown className="h-3.5 w-3.5" />}
             {rate}
           </span>
         )}

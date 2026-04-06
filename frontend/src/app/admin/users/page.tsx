@@ -5,13 +5,15 @@ import api from '@/lib/api';
 import { User } from '@/types';
 import { cn } from '@/lib/utils';
 
+const PAGE_SIZE = 20;
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
 
   const fetchUsers = () => {
-    api.get(`/admin/users?page=${page}&limit=20`).then(r => {
+    api.get(`/admin/users?page=${page}&limit=${PAGE_SIZE}`).then(r => {
       setUsers(r.data.users || []);
       setTotal(r.data.total || 0);
     });
@@ -99,7 +101,7 @@ export default function AdminUsersPage() {
             ← Previous
           </Button>
           <span className="text-sm text-[#64748B]">Page {page}</span>
-          <Button size="sm" variant="ghost" onClick={() => setPage(p => p + 1)}>
+          <Button size="sm" variant="ghost" onClick={() => setPage(p => p + 1)} disabled={users.length < PAGE_SIZE || page * PAGE_SIZE >= total}>
             Next →
           </Button>
         </div>

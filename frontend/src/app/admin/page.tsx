@@ -44,7 +44,7 @@ export default function AdminDashboard() {
           title="Total Users"
           total={stats?.totalUsers ?? '—'}
           rate={stats ? `${stats.activeUsers} active` : undefined}
-          levelUp
+          trend="up"
           iconBg="bg-[#3C50E0]"
         >
           <Users className="h-5 w-5 text-white" />
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
           title="Deposits Today"
           total={stats ? `$${(stats.totalDepositsToday || 0).toFixed(2)}` : '—'}
           rate="vs. yesterday"
-          levelUp
+          trend="up"
           iconBg="bg-[#219653]"
         >
           <CreditCard className="h-5 w-5 text-white" />

@@ -45,6 +45,7 @@ export default function AdminAuditPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
           <Input
+            aria-label="Filter by action"
             className="pl-9"
             placeholder="Filter by action…"
             value={action}
