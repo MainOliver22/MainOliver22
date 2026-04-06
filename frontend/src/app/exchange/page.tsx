@@ -63,7 +63,7 @@ export default function ExchangePage() {
   const toAsset = assets.find(a => a.id === toAssetId);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">Exchange</h1>
@@ -72,27 +72,27 @@ export default function ExchangePage() {
             <CardHeader><CardTitle>Swap Assets</CardTitle></CardHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
-                <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm mb-2" value={fromAssetId} onChange={e => setFromAssetId(e.target.value)}>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground-muted)' }}>From</label>
+                <select className="w-full rounded-lg border px-3.5 py-2.5 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500/50" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} value={fromAssetId} onChange={e => setFromAssetId(e.target.value)}>
                   {assets.map(a => <option key={a.id} value={a.id}>{a.symbol}</option>)}
                 </select>
                 <Input placeholder="Amount" type="number" value={fromAmount} onChange={e => setFromAmount(e.target.value)} />
               </div>
-              <div className="flex justify-center"><ArrowRightLeft className="h-5 w-5 text-gray-400" /></div>
+              <div className="flex justify-center"><ArrowRightLeft className="h-5 w-5 text-slate-500" /></div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
-                <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" value={toAssetId} onChange={e => setToAssetId(e.target.value)}>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground-muted)' }}>To</label>
+                <select className="w-full rounded-lg border px-3.5 py-2.5 text-sm text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500/50" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} value={toAssetId} onChange={e => setToAssetId(e.target.value)}>
                   {assets.map(a => <option key={a.id} value={a.id}>{a.symbol}</option>)}
                 </select>
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-red-400">{error}</p>}
               {!quote ? (
                 <Button onClick={getQuote} loading={loading} className="w-full">Get Quote</Button>
               ) : (
-                <div className="bg-blue-50 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-gray-600">Rate</span><span>{parseFloat(quote.rate).toFixed(6)} {toAsset?.symbol}/{fromAsset?.symbol}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-gray-600">You receive</span><span className="font-bold">{parseFloat(quote.toAmount).toFixed(6)} {toAsset?.symbol}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-gray-600">Fee</span><span>{parseFloat(quote.fee).toFixed(6)} {fromAsset?.symbol}</span></div>
+                <div className="rounded-lg border p-4 space-y-2" style={{ borderColor: 'rgba(59,130,246,0.2)', background: 'rgba(59,130,246,0.05)' }}>
+                  <div className="flex justify-between text-sm"><span className="text-slate-400">Rate</span><span>{parseFloat(quote.rate).toFixed(6)} {toAsset?.symbol}/{fromAsset?.symbol}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-400">You receive</span><span className="font-bold">{parseFloat(quote.toAmount).toFixed(6)} {toAsset?.symbol}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-400">Fee</span><span>{parseFloat(quote.fee).toFixed(6)} {fromAsset?.symbol}</span></div>
                   <div className="flex gap-2 mt-3">
                     <Button onClick={executeExchange} loading={executing} className="flex-1">Execute</Button>
                     <Button onClick={() => setQuote(null)} variant="ghost" className="flex-1">Cancel</Button>
@@ -104,13 +104,13 @@ export default function ExchangePage() {
           <Card>
             <CardHeader><CardTitle>Exchange History</CardTitle></CardHeader>
             <div className="space-y-2">
-              {history.length === 0 ? <p className="text-sm text-gray-500">No exchanges yet</p> : history.slice(0, 10).map(o => (
-                <div key={o.id} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
+              {history.length === 0 ? <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>No exchanges yet</p> : history.slice(0, 10).map(o => (
+                <div key={o.id} className="flex justify-between py-2 border-b last:border-0">
                   <div>
-                    <p className="text-sm font-medium">{parseFloat(o.fromAmount).toFixed(4)} → {parseFloat(o.toAmount).toFixed(4)}</p>
-                    <p className="text-xs text-gray-500">{formatDate(o.createdAt)}</p>
+                    <p className="text-sm font-medium text-white">{parseFloat(o.fromAmount).toFixed(4)} → {parseFloat(o.toAmount).toFixed(4)}</p>
+                    <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>{formatDate(o.createdAt)}</p>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${o.status === 'FILLED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{o.status}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${o.status === 'FILLED' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>{o.status}</span>
                 </div>
               ))}
             </div>

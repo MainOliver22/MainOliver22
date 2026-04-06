@@ -48,10 +48,10 @@ export default function BotsPage() {
     fetchData();
   };
 
-  const riskColors: Record<string, string> = { LOW: 'text-green-600 bg-green-100', MEDIUM: 'text-yellow-600 bg-yellow-100', HIGH: 'text-orange-600 bg-orange-100', AGGRESSIVE: 'text-red-600 bg-red-100' };
+  const riskColors: Record<string, string> = { LOW: 'text-emerald-400 bg-green-100', MEDIUM: 'text-yellow-600 bg-yellow-100', HIGH: 'text-orange-600 bg-orange-100', AGGRESSIVE: 'text-red-400 bg-red-100' };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">Bot Trading</h1>
@@ -62,11 +62,11 @@ export default function BotsPage() {
                 <CardTitle>{s.name}</CardTitle>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${riskColors[s.riskLevel] || ''}`}>{s.riskLevel}</span>
               </CardHeader>
-              <p className="text-sm text-gray-600 mb-2">{s.description}</p>
-              <p className="text-xs text-gray-500">Max Drawdown: {parseFloat(s.maxDrawdownPercent).toFixed(1)}%</p>
+              <p className="text-sm text-slate-400 mb-2">{s.description}</p>
+              <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>Max Drawdown: {parseFloat(s.maxDrawdownPercent).toFixed(1)}%</p>
             </Card>
           ))}
-          {strategies.length === 0 && <p className="text-sm text-gray-500 col-span-3">No strategies available. Contact admin.</p>}
+          {strategies.length === 0 && <p className="text-sm col-span-3" style={{ color: 'var(--foreground-muted)' }}>No strategies available. Contact admin.</p>}
         </div>
         {selectedStrategy && (
           <Card className="mb-8">
@@ -76,28 +76,28 @@ export default function BotsPage() {
               <Button onClick={startBot} loading={loading}>Start Bot</Button>
               <Button variant="ghost" onClick={() => setSelectedStrategy(null)}>Cancel</Button>
             </div>
-            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
           </Card>
         )}
         <Card>
           <CardHeader><CardTitle>My Running Bots</CardTitle></CardHeader>
-          {instances.length === 0 ? <p className="text-sm text-gray-500">No bots running. Select a strategy above to start.</p> : (
+          {instances.length === 0 ? <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>No bots running. Select a strategy above to start.</p> : (
             <div className="space-y-3">
               {instances.map(inst => (
-                <div key={inst.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={inst.id} className="flex items-center justify-between p-3 rounded-lg border">
                   <div>
                     <p className="text-sm font-semibold">{inst.strategy?.name || 'Bot'}</p>
-                    <p className="text-xs text-gray-500">Allocated: ${parseFloat(inst.allocatedAmount).toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">{formatDate(inst.createdAt)}</p>
+                    <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>Allocated: ${parseFloat(inst.allocatedAmount).toFixed(2)}</p>
+                    <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>{formatDate(inst.createdAt)}</p>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-1">
                       {parseFloat(inst.pnl) >= 0 ? <TrendingUp className="h-4 w-4 text-green-500" /> : <TrendingDown className="h-4 w-4 text-red-500" />}
-                      <span className={`text-sm font-bold ${parseFloat(inst.pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`text-sm font-bold ${parseFloat(inst.pnl) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {parseFloat(inst.pnl) >= 0 ? '+' : ''}{parseFloat(inst.pnl).toFixed(2)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">{inst.status}</p>
+                    <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>{inst.status}</p>
                   </div>
                   <div className="flex gap-2">
                     {inst.status === 'ACTIVE' && <Button variant="secondary" size="sm" onClick={() => pauseBot(inst.id)}><Pause className="h-3 w-3" /></Button>}

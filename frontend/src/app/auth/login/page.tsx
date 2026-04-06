@@ -9,7 +9,7 @@ import api from '@/lib/api';
 import { setTokens } from '@/lib/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 
 const schema = z.object({
   email: z.string().email(),
@@ -39,19 +39,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader><CardTitle>Sign In</CardTitle></CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input label="Email" type="email" {...register('email')} error={errors.email?.message} />
-          <Input label="Password" type="password" {...register('password')} error={errors.password?.message} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" className="w-full" loading={isSubmitting}>Sign In</Button>
-          <p className="text-sm text-center text-gray-600">
-            No account? <Link href="/auth/register" className="text-blue-600 hover:underline">Register</Link>
-          </p>
-        </form>
-      </Card>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <Link href="/" className="text-xl font-bold text-white">
+            Invest<span className="text-blue-400">Platform</span>
+          </Link>
+          <h1 className="mt-6 text-2xl font-bold text-white">Welcome back</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>Sign in to your account</p>
+        </div>
+        <Card>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Input label="Email" type="email" placeholder="you@example.com" {...register('email')} error={errors.email?.message} />
+            <Input label="Password" type="password" placeholder="••••••••" {...register('password')} error={errors.password?.message} />
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <Button type="submit" className="w-full" loading={isSubmitting}>Sign In</Button>
+            <p className="text-sm text-center" style={{ color: 'var(--foreground-muted)' }}>
+              No account?{' '}
+              <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 transition">
+                Create one
+              </Link>
+            </p>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }

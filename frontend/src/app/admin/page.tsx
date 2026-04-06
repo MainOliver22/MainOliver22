@@ -28,11 +28,11 @@ export default function AdminDashboard() {
         {cards.map(({ icon: Icon, label, value, sub }) => (
           <Card key={label}>
             <div className="flex items-center gap-3 mb-2">
-              <Icon className="h-5 w-5 text-blue-600" />
-              <span className="text-sm text-gray-600">{label}</span>
+              <Icon className="h-5 w-5 text-blue-400" />
+              <span className="text-sm text-slate-400">{label}</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-            <p className="text-xs text-gray-500">{sub}</p>
+            <p className="text-2xl font-bold text-white">{value}</p>
+            <p className="text-xs text-slate-500">{sub}</p>
           </Card>
         ))}
       </div>
