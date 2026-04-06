@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNumberString, IsObject, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNumberString,
+  IsObject,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 import { DepositMethod } from '../../database/enums/deposit-method.enum';
 
 export class CreateDepositDto {

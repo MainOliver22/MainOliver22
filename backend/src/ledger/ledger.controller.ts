@@ -6,7 +6,12 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { LedgerService } from './ledger.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -26,7 +31,9 @@ export class LedgerController {
   }
 
   @Get('ledger')
-  @ApiOperation({ summary: 'Get paginated ledger entries for the current user' })
+  @ApiOperation({
+    summary: 'Get paginated ledger entries for the current user',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   getLedger(

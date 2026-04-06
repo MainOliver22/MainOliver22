@@ -19,7 +19,9 @@ import { RefreshToken } from '../database/entities/session.entity';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET', 'change-me-in-production'),
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRY', '15m') as StringValue },
+        signOptions: {
+          expiresIn: config.get<string>('JWT_EXPIRY', '15m') as StringValue,
+        },
       }),
     }),
   ],

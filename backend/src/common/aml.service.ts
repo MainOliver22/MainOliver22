@@ -22,7 +22,7 @@ const SANCTIONED_NAME_PATTERNS: RegExp[] = [
   /\bsaddam\s+hussein\b/i,
   /\bmuammar\s+gaddafi\b/i,
   /\bosama\s+bin\s+laden\b/i,
-  /\bputin\b/i,  // simplified demo pattern
+  /\bputin\b/i, // simplified demo pattern
 ];
 
 @Injectable()
@@ -37,7 +37,10 @@ export class AmlService {
     const normalised = address.trim().toLowerCase();
     if (SANCTIONED_ADDRESSES.has(normalised)) {
       this.logger.warn(`AML: Blocked sanctioned address ${address}`);
-      return { blocked: true, reason: 'Address appears on OFAC sanctions list' };
+      return {
+        blocked: true,
+        reason: 'Address appears on OFAC sanctions list',
+      };
     }
 
     this.logger.debug(`AML: Address ${address} cleared`);

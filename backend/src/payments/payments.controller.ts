@@ -49,7 +49,11 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getDeposits(user.id, Number(page), Number(limit));
+    return this.paymentsService.getDeposits(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Post('deposit/webhook')
@@ -67,7 +71,10 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a withdrawal request' })
-  createWithdrawal(@CurrentUser() user: User, @Body() dto: CreateWithdrawalDto) {
+  createWithdrawal(
+    @CurrentUser() user: User,
+    @Body() dto: CreateWithdrawalDto,
+  ) {
     return this.paymentsService.createWithdrawal(user.id, dto);
   }
 
@@ -82,7 +89,11 @@ export class PaymentsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.paymentsService.getWithdrawals(user.id, Number(page), Number(limit));
+    return this.paymentsService.getWithdrawals(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('admin/deposits')

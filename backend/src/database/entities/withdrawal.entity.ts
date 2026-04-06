@@ -43,7 +43,11 @@ export class Withdrawal {
   @Column({ type: 'jsonb', nullable: true, comment: 'Encrypted bank details' })
   bankDetails!: Record<string, unknown> | null;
 
-  @Column({ type: 'enum', enum: WithdrawalStatus, default: WithdrawalStatus.PENDING_APPROVAL })
+  @Column({
+    type: 'enum',
+    enum: WithdrawalStatus,
+    default: WithdrawalStatus.PENDING_APPROVAL,
+  })
   status!: WithdrawalStatus;
 
   @Column({ type: 'uuid', nullable: true })

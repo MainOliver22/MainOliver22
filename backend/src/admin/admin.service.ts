@@ -38,7 +38,9 @@ export class AdminService {
     status?: UserStatus,
     role?: UserRole,
   ): Promise<{ items: User[]; total: number; page: number; limit: number }> {
-    const qb = this.userRepo.createQueryBuilder('user').orderBy('user.createdAt', 'DESC');
+    const qb = this.userRepo
+      .createQueryBuilder('user')
+      .orderBy('user.createdAt', 'DESC');
     if (status) qb.andWhere('user.status = :status', { status });
     if (role) qb.andWhere('user.role = :role', { role });
     qb.skip((page - 1) * limit).take(limit);
@@ -57,7 +59,10 @@ export class AdminService {
 
     const [balances, kycCase, botInstancesCount] = await Promise.all([
       this.accountRepo.find({ where: { userId }, relations: ['asset'] }),
-      this.kycCaseRepo.findOne({ where: { userId }, order: { createdAt: 'DESC' } }),
+      this.kycCaseRepo.findOne({
+        where: { userId },
+        order: { createdAt: 'DESC' },
+      }),
       this.botInstanceRepo.count({ where: { userId } }),
     ]);
 
@@ -117,7 +122,9 @@ export class AdminService {
         .createQueryBuilder('w')
         .where('w.createdAt >= :today', { today })
         .getCount(),
-      this.botInstanceRepo.count({ where: { status: BotInstanceStatus.ACTIVE } }),
+      this.botInstanceRepo.count({
+        where: { status: BotInstanceStatus.ACTIVE },
+      }),
     ]);
 
     // Sum all user available account balances (rough AUM)
@@ -145,7 +152,13 @@ export class AdminService {
     action?: string,
     targetType?: string,
   ) {
-    return this.auditService.search({ actorId, action, targetType, page, limit });
+    return this.auditService.search({
+      actorId,
+      action,
+      targetType,
+      page,
+      limit,
+    });
   }
 
   getSystemHealth(): { status: string; timestamp: string; version: string } {

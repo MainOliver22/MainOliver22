@@ -12,7 +12,14 @@ import { AdminController } from './admin.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Deposit, Withdrawal, BotInstance, KycCase, Account]),
+    TypeOrmModule.forFeature([
+      User,
+      Deposit,
+      Withdrawal,
+      BotInstance,
+      KycCase,
+      Account,
+    ]),
     AuditModule,
   ],
   providers: [AdminService],
