@@ -33,7 +33,7 @@ export default function NotificationsPage() {
                   <div>
                     <p className="text-sm font-semibold">{n.title}</p>
                     <p className="text-sm text-slate-400">{n.message}</p>
-                    <p className="text-xs text-xs" style={{ color: 'var(--foreground-muted)' }}>{formatDate(n.createdAt)}</p>
+                    <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{formatDate(n.createdAt)}</p>
                   </div>
                   {!n.isRead && <Button variant="ghost" size="sm" onClick={() => markRead(n.id)}>Mark read</Button>}
                 </div>
