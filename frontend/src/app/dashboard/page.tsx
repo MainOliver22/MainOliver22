@@ -34,17 +34,17 @@ export default function DashboardPage() {
   const totalPnl = bots.reduce((sum, b) => sum + parseFloat(b.pnl || '0'), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Portfolio Dashboard</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">Portfolio Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader><CardTitle>Total Balances</CardTitle></CardHeader>
             <div className="space-y-2">
-              {balances.length === 0 ? <p className="text-sm text-gray-500">No balances yet</p> : balances.map(b => (
+              {balances.length === 0 ? <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>No balances yet</p> : balances.map(b => (
                 <div key={b.assetId} className="flex justify-between">
-                  <span className="text-sm text-gray-600">{b.asset?.symbol}</span>
+                  <span className="text-sm text-slate-400">{b.asset?.symbol}</span>
                   <span className="text-sm font-medium">{parseFloat(b.balance).toFixed(6)}</span>
                 </div>
               ))}
@@ -52,7 +52,7 @@ export default function DashboardPage() {
           </Card>
           <Card>
             <CardHeader><CardTitle>Bot P&L</CardTitle></CardHeader>
-            <p className={`text-2xl font-bold ${totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-2xl font-bold ${totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               {totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(2)} USD
             </p>
             <p className="text-sm text-gray-500 mt-1">{bots.length} active bot{bots.length !== 1 ? 's' : ''}</p>
@@ -81,9 +81,9 @@ export default function DashboardPage() {
                   <div key={bot.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
                     <div>
                       <p className="text-sm font-medium">{bot.strategy?.name || 'Bot'}</p>
-                      <p className="text-xs text-gray-500">${parseFloat(bot.allocatedAmount).toFixed(2)} allocated</p>
+                      <p className="text-xs" style={{ color: "var(--foreground-muted)" }}>${parseFloat(bot.allocatedAmount).toFixed(2)} allocated</p>
                     </div>
-                    <span className={`text-sm font-semibold ${parseFloat(bot.pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-sm font-semibold ${parseFloat(bot.pnl) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                       {parseFloat(bot.pnl) >= 0 ? '+' : ''}{parseFloat(bot.pnl).toFixed(2)}
                     </span>
                   </div>

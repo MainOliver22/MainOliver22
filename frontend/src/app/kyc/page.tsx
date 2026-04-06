@@ -27,31 +27,31 @@ export default function KycPage() {
   };
 
   const statusColors: Record<string, string> = {
-    NOT_STARTED: 'text-gray-600', PENDING: 'text-yellow-600', IN_REVIEW: 'text-blue-600',
-    APPROVED: 'text-green-600', REJECTED: 'text-red-600',
+    NOT_STARTED: 'text-slate-400', PENDING: 'text-yellow-600', IN_REVIEW: 'text-blue-600',
+    APPROVED: 'text-emerald-400', REJECTED: 'text-red-400',
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
       <Navbar />
       <main className="max-w-2xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold mb-6">Identity Verification (KYC)</h1>
         <Card>
           <CardHeader><CardTitle>Verification Status</CardTitle></CardHeader>
-          {loading ? <p className="text-sm text-gray-500">Loading...</p> : (
+          {loading ? <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>Loading...</p> : (
             <div className="space-y-4">
               {kycCase ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Status</span>
+                    <span className="text-sm text-slate-400">Status</span>
                     <span className={`text-sm font-semibold ${statusColors[kycCase.status] || ''}`}>{kycCase.status}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Level</span>
+                    <span className="text-sm text-slate-400">Level</span>
                     <span className="text-sm">{kycCase.level}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Submitted</span>
+                    <span className="text-sm text-slate-400">Submitted</span>
                     <span className="text-sm">{new Date(kycCase.createdAt).toLocaleDateString()}</span>
                   </div>
                   {kycCase.status === 'REJECTED' && (
@@ -60,7 +60,7 @@ export default function KycPage() {
                 </>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-gray-600 mb-4">KYC verification is required to unlock deposits, withdrawals, and bot trading.</p>
+                  <p className="text-sm text-slate-400 mb-4">KYC verification is required to unlock deposits, withdrawals, and bot trading.</p>
                   <Button onClick={startKyc} loading={starting}>Start KYC Verification</Button>
                 </div>
               )}

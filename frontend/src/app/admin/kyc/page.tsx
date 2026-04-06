@@ -23,21 +23,21 @@ export default function AdminKycPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">KYC Queue</h1>
+      <h1 className="text-2xl font-bold mb-6 text-white">KYC Queue</h1>
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-gray-500 border-b">
+            <thead><tr className="text-left text-slate-500 border-b">
               <th className="pb-3 pr-4">User</th><th className="pb-3 pr-4">Level</th>
               <th className="pb-3 pr-4">Status</th><th className="pb-3 pr-4">Submitted</th><th className="pb-3">Actions</th>
             </tr></thead>
             <tbody>
               {cases.map(c => (
-                <tr key={c.id} className="border-b border-gray-50">
+                <tr key={c.id} className="border-b">
                   <td className="py-3 pr-4">{c.user ? `${c.user.firstName} ${c.user.lastName} (${c.user.email})` : c.id}</td>
                   <td className="py-3 pr-4">{c.level}</td>
-                  <td className="py-3 pr-4"><span className={`px-2 py-0.5 rounded-full text-xs ${c.status === 'APPROVED' ? 'bg-green-100 text-green-700' : c.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{c.status}</span></td>
-                  <td className="py-3 pr-4 text-gray-500">{formatDate(c.createdAt)}</td>
+                  <td className="py-3 pr-4"><span className={`px-2 py-0.5 rounded-full text-xs ${c.status === 'APPROVED' ? 'bg-emerald-500/10 text-emerald-400' : c.status === 'REJECTED' ? 'bg-red-500/10 text-red-400' : 'bg-amber-500/10 text-amber-400'}`}>{c.status}</span></td>
+                  <td className="py-3 pr-4 text-slate-500">{formatDate(c.createdAt)}</td>
                   <td className="py-3">
                     {(c.status === 'PENDING' || c.status === 'IN_REVIEW') && (
                       <div className="flex gap-2">
@@ -55,7 +55,7 @@ export default function AdminKycPage() {
                   </td>
                 </tr>
               ))}
-              {cases.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-gray-500">No KYC cases</td></tr>}
+              {cases.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-slate-500">No KYC cases</td></tr>}
             </tbody>
           </table>
         </div>

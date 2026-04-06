@@ -21,23 +21,23 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Users ({total})</h1>
+      <h1 className="text-2xl font-bold mb-6 text-white">Users ({total})</h1>
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-gray-500 border-b">
+            <thead><tr className="text-left text-slate-500 border-b">
               <th className="pb-3 pr-4">Name</th><th className="pb-3 pr-4">Email</th>
               <th className="pb-3 pr-4">Role</th><th className="pb-3 pr-4">Status</th>
               <th className="pb-3 pr-4">Joined</th><th className="pb-3">Actions</th>
             </tr></thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.id} className="border-b border-gray-50">
+                <tr key={u.id} className="border-b">
                   <td className="py-3 pr-4 font-medium">{u.firstName} {u.lastName}</td>
-                  <td className="py-3 pr-4 text-gray-600">{u.email}</td>
-                  <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">{u.role}</span></td>
-                  <td className="py-3 pr-4"><span className={`px-2 py-0.5 rounded-full text-xs ${u.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{u.status}</span></td>
-                  <td className="py-3 pr-4 text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td className="py-3 pr-4 text-slate-400">{u.email}</td>
+                  <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-full text-xs">{u.role}</span></td>
+                  <td className="py-3 pr-4"><span className={`px-2 py-0.5 rounded-full text-xs ${u.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{u.status}</span></td>
+                  <td className="py-3 pr-4 text-slate-500">{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td className="py-3">
                     {u.status === 'FROZEN' ? <Button size="sm" variant="secondary" onClick={() => unfreeze(u.id)}>Unfreeze</Button> : <Button size="sm" variant="danger" onClick={() => freeze(u.id)}>Freeze</Button>}
                   </td>
@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
         </div>
         <div className="flex justify-between mt-4">
           <Button size="sm" variant="ghost" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-          <span className="text-sm text-gray-600">Page {page}</span>
+          <span className="text-sm text-slate-400">Page {page}</span>
           <Button size="sm" variant="ghost" onClick={() => setPage(p => p + 1)}>Next</Button>
         </div>
       </Card>

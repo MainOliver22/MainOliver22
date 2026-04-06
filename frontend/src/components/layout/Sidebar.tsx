@@ -18,7 +18,7 @@ const adminLinks = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen p-4">
+    <aside className="w-64 min-h-screen border-r p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="text-white font-bold text-lg mb-8 px-2">Admin Panel</div>
       <nav className="space-y-1">
         {adminLinks.map(({ href, icon: Icon, label }) => (
