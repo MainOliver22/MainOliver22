@@ -31,14 +31,27 @@ backend/src/
   database/      20 TypeORM entities + 29 enums
 
 frontend/src/
-  app/auth/       Login + Register
-  app/dashboard/  Portfolio dashboard + balances
-  app/kyc/        KYC onboarding + status
-  app/deposit/    Deposit funds
-  app/withdraw/   Withdraw funds
-  app/exchange/   Asset exchange UI
-  app/bots/       Bot trading UI
-  app/admin/      Admin panel (dashboard, users, KYC, audit)
+  app/(admin)/                  Next.js route group (shared layout)
+    auth/login/                 Login page
+    auth/register/              Register page
+    dashboard/                  Portfolio dashboard + balances
+    kyc/                        KYC onboarding + status
+    wallets/                    Deposit + withdraw funds
+    exchange/                   Asset exchange UI
+    bots/                       Bot trading UI
+    ledger/                     Ledger viewer
+    notifications/              In-app notifications
+    audit/                      Immutable audit log viewer
+    admin/                      Admin panel
+      admin/page                KPIs dashboard
+      admin/users/              User management
+      admin/kyc/                KYC review queue
+  app/api/proxy/                Next.js API route (backend proxy)
+  components/layout/            Navbar + Sidebar
+  components/ui/                Button, Card, Input, ThemeToggle
+  contexts/                     AuthContext
+  lib/                          api.ts, auth.ts, utils.ts
+  types/                        Shared TypeScript types
 ```
 
 ## Quick Start
