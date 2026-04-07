@@ -28,7 +28,11 @@ export class Notification {
   @Column({ type: 'text' })
   message!: string;
 
-  @Column({ type: 'enum', enum: NotificationChannel, default: NotificationChannel.IN_APP })
+  @Column({
+    type: 'enum',
+    enum: NotificationChannel,
+    default: NotificationChannel.IN_APP,
+  })
   channel!: NotificationChannel;
 
   @Column({ type: 'boolean', default: false })

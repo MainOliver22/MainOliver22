@@ -60,21 +60,26 @@ export class PriceFeedService {
       https
         .get(url, (res) => {
           let data = '';
-          res.on('data', (chunk: string) => { data += chunk; });
+          res.on('data', (chunk: string) => {
+            data += chunk;
+          });
           res.on('end', () => {
             try {
-              const parsed = JSON.parse(data) as { price?: string; msg?: string };
+              const parsed = JSON.parse(data) as {
+                price?: string;
+                msg?: string;
+              };
               if (parsed.price === undefined) {
                 reject(new Error(parsed.msg ?? 'No price field in response'));
               } else {
                 resolve(parseFloat(parsed.price));
               }
             } catch (e) {
-              reject(e);
+              reject(e instanceof Error ? e : new Error(String(e)));
             }
           });
         })
-        .on('error', reject);
+        .on('error', (err: Error) => reject(err));
     });
   }
 }

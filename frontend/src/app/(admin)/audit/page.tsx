@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
@@ -15,7 +16,9 @@ export default function AdminAuditPage() {
   useEffect(() => { fetchLogs(); }, []);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="max-w-6xl mx-auto px-6 py-8">
       <h1 className="text-2xl font-bold mb-6">Audit Logs</h1>
       <div className="mb-4 flex gap-3">
         <Input placeholder="Filter by action..." value={action} onChange={e => setAction(e.target.value)} />
@@ -43,6 +46,7 @@ export default function AdminAuditPage() {
           </table>
         </div>
       </Card>
+      </main>
     </div>
   );
 }

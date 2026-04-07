@@ -11,7 +11,7 @@ const adminLinks = [
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { href: '/admin/exchange', icon: TrendingUp, label: 'Exchange' },
   { href: '/admin/bots', icon: Bot, label: 'Bots' },
-  { href: '/admin/audit', icon: FileText, label: 'Audit Logs' },
+  { href: '/audit', icon: FileText, label: 'Audit Logs' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

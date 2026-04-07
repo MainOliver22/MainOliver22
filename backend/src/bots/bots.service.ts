@@ -20,7 +20,6 @@ import { TradeSide } from '../database/enums/trade-side.enum';
 import { TradeStatus } from '../database/enums/trade-status.enum';
 import { CreateStrategyDto } from './dto/create-strategy.dto';
 import { CreateInstanceDto } from './dto/create-instance.dto';
-import { MOCK_USD_PRICES } from '../common/mock-prices';
 import { PriceFeedService } from '../common/price-feed.service';
 
 @Injectable()
@@ -44,8 +43,12 @@ export class BotsService {
     private readonly priceFeedService: PriceFeedService,
   ) {}
 
-  async listStrategies(): Promise<BotStrategy[]> {
-    return this.strategyRepo.find({ where: { isActive: true }, order: { createdAt: 'DESC' } });
+  async listStrategies(): Promise<{ strategies: BotStrategy[] }> {
+    const strategies = await this.strategyRepo.find({
+      where: { isActive: true },
+      order: { createdAt: 'DESC' },
+    });
+    return { strategies };
   }
 
   async getStrategy(id: string): Promise<BotStrategy> {
@@ -54,7 +57,10 @@ export class BotsService {
     return strategy;
   }
 
-  async createStrategy(adminUserId: string, dto: CreateStrategyDto): Promise<BotStrategy> {
+  async createStrategy(
+    adminUserId: string,
+    dto: CreateStrategyDto,
+  ): Promise<BotStrategy> {
     const strategy = this.strategyRepo.create({
       ...dto,
       createdBy: adminUserId,
@@ -63,16 +69,25 @@ export class BotsService {
     return this.strategyRepo.save(strategy);
   }
 
-  async createInstance(userId: string, dto: CreateInstanceDto): Promise<BotInstance> {
-    const strategy = await this.strategyRepo.findOne({ where: { id: dto.strategyId } });
-    if (!strategy) throw new NotFoundException(`Strategy ${dto.strategyId} not found`);
-    if (!strategy.isActive) throw new BadRequestException('Strategy is not active');
+  async createInstance(
+    userId: string,
+    dto: CreateInstanceDto,
+  ): Promise<BotInstance> {
+    const strategy = await this.strategyRepo.findOne({
+      where: { id: dto.strategyId },
+    });
+    if (!strategy)
+      throw new NotFoundException(`Strategy ${dto.strategyId} not found`);
+    if (!strategy.isActive)
+      throw new BadRequestException('Strategy is not active');
 
     // Check balance against first allowed asset (or use USDC as default)
     const allowedAssetSymbols = strategy.allowedAssets;
     let assetId: string | undefined;
     if (allowedAssetSymbols.length > 0) {
-      const asset = await this.assetRepo.findOne({ where: { symbol: allowedAssetSymbols[0] } });
+      const asset = await this.assetRepo.findOne({
+        where: { symbol: allowedAssetSymbols[0] },
+      });
       assetId = asset?.id;
     }
 
@@ -124,12 +139,15 @@ export class BotsService {
     return this.instanceRepo.save(instance);
   }
 
-  async getUserInstances(userId: string): Promise<BotInstance[]> {
-    return this.instanceRepo.find({
+  async getUserInstances(
+    userId: string,
+  ): Promise<{ instances: BotInstance[] }> {
+    const instances = await this.instanceRepo.find({
       where: { userId },
       relations: ['strategy'],
       order: { createdAt: 'DESC' },
     });
+    return { instances };
   }
 
   async getInstance(userId: string, instanceId: string): Promise<BotInstance> {
@@ -137,13 +155,19 @@ export class BotsService {
       where: { id: instanceId, userId },
       relations: ['strategy'],
     });
-    if (!instance) throw new NotFoundException(`Bot instance ${instanceId} not found`);
+    if (!instance)
+      throw new NotFoundException(`Bot instance ${instanceId} not found`);
     return instance;
   }
 
-  async pauseInstance(userId: string, instanceId: string): Promise<BotInstance> {
+  async pauseInstance(
+    userId: string,
+    instanceId: string,
+  ): Promise<BotInstance> {
     const instance = await this.getInstance(userId, instanceId);
-    await this.instanceRepo.update(instanceId, { status: BotInstanceStatus.PAUSED });
+    await this.instanceRepo.update(instanceId, {
+      status: BotInstanceStatus.PAUSED,
+    });
     instance.status = BotInstanceStatus.PAUSED;
     return instance;
   }
@@ -157,9 +181,13 @@ export class BotsService {
     });
 
     // Return locked funds to available
-    const strategy = await this.strategyRepo.findOne({ where: { id: instance.strategyId } });
+    const strategy = await this.strategyRepo.findOne({
+      where: { id: instance.strategyId },
+    });
     if (strategy && strategy.allowedAssets.length > 0) {
-      const asset = await this.assetRepo.findOne({ where: { symbol: strategy.allowedAssets[0] } });
+      const asset = await this.assetRepo.findOne({
+        where: { symbol: strategy.allowedAssets[0] },
+      });
       if (asset) {
         const lockedAccount = await this.ledgerService.getOrCreateAccount(
           userId,
@@ -213,11 +241,14 @@ export class BotsService {
       where: { id: instanceId },
       relations: ['strategy'],
     });
-    if (!instance) throw new NotFoundException(`Bot instance ${instanceId} not found`);
+    if (!instance)
+      throw new NotFoundException(`Bot instance ${instanceId} not found`);
 
     const strategy = instance.strategy;
     const assetSymbol = strategy.allowedAssets[0] ?? 'BTC';
-    const asset = await this.assetRepo.findOne({ where: { symbol: assetSymbol } });
+    const asset = await this.assetRepo.findOne({
+      where: { symbol: assetSymbol },
+    });
     if (!asset) throw new NotFoundException(`Asset ${assetSymbol} not found`);
 
     const basePrice = await this.priceFeedService.getPrice(assetSymbol);
@@ -225,9 +256,10 @@ export class BotsService {
     const price = basePrice * (1 + (Math.random() - 0.5) * volatility);
     const amount = (parseFloat(instance.allocatedAmount) * 0.1) / price;
     const side = Math.random() > 0.5 ? TradeSide.BUY : TradeSide.SELL;
-    const pnlDelta = side === TradeSide.SELL
-      ? amount * price * 0.01
-      : -(amount * price * 0.005);
+    const pnlDelta =
+      side === TradeSide.SELL
+        ? amount * price * 0.01
+        : -(amount * price * 0.005);
 
     const tx = await this.ledgerService.createTransaction(
       TransactionType.BOT_TRADE,
@@ -258,20 +290,28 @@ export class BotsService {
       lastTradeAt: new Date(),
     });
 
-    return this.tradeRepo.findOne({ where: { id: trade.id }, relations: ['asset'] }) as Promise<Trade>;
+    return this.tradeRepo.findOne({
+      where: { id: trade.id },
+      relations: ['asset'],
+    }) as Promise<Trade>;
   }
 
   async getAllInstances(
     page: number,
     limit: number,
-  ): Promise<{ items: BotInstance[]; total: number; page: number; limit: number }> {
-    const [items, total] = await this.instanceRepo.findAndCount({
+  ): Promise<{
+    instances: BotInstance[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const [instances, total] = await this.instanceRepo.findAndCount({
       relations: ['strategy', 'user'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { instances, total, page, limit };
   }
 
   async adminPauseAll(): Promise<{ affected: number }> {
@@ -297,10 +337,18 @@ export class BotsService {
     pnlPercent: number;
     tradeCount: number;
     winRate: number;
-    candles: Array<{ timestamp: string; price: number; action: string; portfolioValue: number }>;
+    candles: Array<{
+      timestamp: string;
+      price: number;
+      action: string;
+      portfolioValue: number;
+    }>;
   }> {
-    const strategy = await this.strategyRepo.findOne({ where: { id: strategyId } });
-    if (!strategy) throw new NotFoundException(`Strategy ${strategyId} not found`);
+    const strategy = await this.strategyRepo.findOne({
+      where: { id: strategyId },
+    });
+    if (!strategy)
+      throw new NotFoundException(`Strategy ${strategyId} not found`);
 
     const startPrice = await this.priceFeedService.getPrice(assetSymbol);
     const totalCandles = days * 24;
@@ -313,7 +361,12 @@ export class BotsService {
     let wins = 0;
     let lastBuyPrice = 0;
 
-    const candles: Array<{ timestamp: string; price: number; action: string; portfolioValue: number }> = [];
+    const candles: Array<{
+      timestamp: string;
+      price: number;
+      action: string;
+      portfolioValue: number;
+    }> = [];
 
     for (let i = 0; i < totalCandles; i++) {
       const prevPrice = price;

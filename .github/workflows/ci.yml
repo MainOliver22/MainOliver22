@@ -2,14 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, gh-branch]
   pull_request:
-    branches: [main]
+    branches: [main, gh-branch]
 
 jobs:
   backend:
     name: Backend — lint, build, test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: backend
@@ -37,8 +39,10 @@ jobs:
         run: npm test -- --passWithNoTests
 
   frontend:
-    name: Frontend — lint, build
+    name: Frontend — lint, test, build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: frontend
@@ -59,7 +63,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://api.qfx-finance.com
+          NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api

@@ -20,10 +20,26 @@ import { AppService } from './app.service';
 
 // Import all entities
 import {
-  User, RefreshToken, KycCase, KycDocument, Wallet, Asset, Account,
-  LedgerEntry, Transaction, Deposit, Withdrawal, ExchangeOrder,
-  BotStrategy, BotInstance, Trade, AuditLog, Notification as NotificationEntity,
-  SupportTicket, RiskRule, FeeConfig,
+  User,
+  RefreshToken,
+  KycCase,
+  KycDocument,
+  Wallet,
+  Asset,
+  Account,
+  LedgerEntry,
+  Transaction,
+  Deposit,
+  Withdrawal,
+  ExchangeOrder,
+  BotStrategy,
+  BotInstance,
+  Trade,
+  AuditLog,
+  Notification as NotificationEntity,
+  SupportTicket,
+  RiskRule,
+  FeeConfig,
 } from './database/entities';
 
 @Module({
@@ -34,16 +50,40 @@ import {
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        url: config.get<string>('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/investplatform'),
+        url: config.get<string>(
+          'DATABASE_URL',
+          'postgresql://postgres:postgres@localhost:5432/investplatform',
+        ),
         entities: [
-          User, RefreshToken, KycCase, KycDocument, Wallet, Asset, Account,
-          LedgerEntry, Transaction, Deposit, Withdrawal, ExchangeOrder,
-          BotStrategy, BotInstance, Trade, AuditLog, NotificationEntity,
-          SupportTicket, RiskRule, FeeConfig,
+          User,
+          RefreshToken,
+          KycCase,
+          KycDocument,
+          Wallet,
+          Asset,
+          Account,
+          LedgerEntry,
+          Transaction,
+          Deposit,
+          Withdrawal,
+          ExchangeOrder,
+          BotStrategy,
+          BotInstance,
+          Trade,
+          AuditLog,
+          NotificationEntity,
+          SupportTicket,
+          RiskRule,
+          FeeConfig,
         ],
-        synchronize: config.get<string>('NODE_ENV', 'development') === 'development',
-        logging: config.get<string>('NODE_ENV', 'development') === 'development',
-        ssl: config.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+        synchronize:
+          config.get<string>('NODE_ENV', 'development') === 'development',
+        logging:
+          config.get<string>('NODE_ENV', 'development') === 'development',
+        ssl:
+          config.get<string>('NODE_ENV') === 'production'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),

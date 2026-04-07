@@ -45,7 +45,11 @@ export class ExchangeOrder {
   @Column({ type: 'decimal', precision: 18, scale: 8, default: 0 })
   fee!: string;
 
-  @Column({ type: 'enum', enum: ExchangeOrderStatus, default: ExchangeOrderStatus.QUOTED })
+  @Column({
+    type: 'enum',
+    enum: ExchangeOrderStatus,
+    default: ExchangeOrderStatus.QUOTED,
+  })
   status!: ExchangeOrderStatus;
 
   @Column({ type: 'timestamptz', nullable: true })

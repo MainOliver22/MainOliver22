@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNumberString, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNumberString,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { WithdrawalMethod } from '../../database/enums/withdrawal-method.enum';
 
 export class CreateWithdrawalDto {
@@ -15,12 +22,16 @@ export class CreateWithdrawalDto {
   @IsEnum(WithdrawalMethod)
   method!: WithdrawalMethod;
 
-  @ApiPropertyOptional({ description: 'Destination address for crypto withdrawals' })
+  @ApiPropertyOptional({
+    description: 'Destination address for crypto withdrawals',
+  })
   @IsOptional()
   @IsString()
   toAddress?: string;
 
-  @ApiPropertyOptional({ description: 'Encrypted bank details for bank transfers' })
+  @ApiPropertyOptional({
+    description: 'Encrypted bank details for bank transfers',
+  })
   @IsOptional()
   @IsObject()
   bankDetails?: Record<string, unknown>;

@@ -1,140 +1,194 @@
-# Investment Platform
+# 🚀 Investment Platform
 
-A production-ready full-stack investment platform with WalletConnect, bot trading, exchange, KYC, and admin panel.
+> A battle-tested, full-stack investment platform built for real-world usage — featuring crypto wallets, algorithmic bot trading, live asset exchange, KYC compliance, and a powerful admin panel.
 
-## Tech Stack
+---
 
-- **Backend:** NestJS + TypeScript + PostgreSQL + TypeORM (double-entry ledger)
-- **Queue:** Redis + BullMQ
-- **Frontend:** Next.js 15 + React + TypeScript + Tailwind CSS
-- **Auth:** JWT + Refresh Tokens (rotating)
-- **Security:** Helmet, rate limiting, bcrypt (12 rounds), class-validator
-- **Docs:** Swagger/OpenAPI at `/api/docs`
-- **Infra:** Docker Compose
+## ✨ What's Inside
 
-## Project Structure
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | NestJS · TypeScript · PostgreSQL · TypeORM |
+| **Queue** | Redis · BullMQ |
+| **Frontend** | Next.js 15 · React · TypeScript · Tailwind CSS |
+| **Auth** | JWT (15m) + rotating refresh tokens (30d) |
+| **Security** | Helmet · rate limiting · bcrypt (12 rounds) · class-validator |
+| **Docs** | Swagger / OpenAPI at `/api/docs` |
+| **Infra** | Docker Compose (Postgres 15, Redis 7, Adminer) |
+
+---
+
+## 🗂️ Project Structure
 
 ```
 backend/src/
-  auth/          JWT auth, guards, decorators, RBAC
-  users/         User profile management
-  kyc/           KYC verification flow + admin queue
-  wallets/       WalletConnect wallet management
-  assets/        Asset registry (USD, BTC, ETH, USDT)
-  ledger/        Double-entry ledger engine
-  payments/      Deposits and withdrawals
-  exchange/      Asset exchange (quote + execute)
-  bots/          Bot strategies, instances, risk + kill switch
-  admin/         Admin dashboard, user management
-  audit/         Immutable audit log (global module)
-  notifications/ In-app notifications (global module)
-  database/      20 TypeORM entities + 29 enums
+├── auth/           JWT auth, guards, decorators, RBAC
+├── users/          User profile management
+├── kyc/            KYC verification flow + admin queue
+├── wallets/        WalletConnect wallet management
+├── assets/         Asset registry (USD, BTC, ETH, USDT…)
+├── ledger/         Double-entry ledger engine
+├── payments/       Deposits and withdrawals
+├── exchange/       Asset exchange (quote + execute)
+├── bots/           Bot strategies, instances, risk + kill switch
+├── admin/          Admin dashboard, user management
+├── audit/          Immutable audit log (global module)
+├── notifications/  In-app notifications (global module)
+└── database/       20 TypeORM entities + 29 enums
 
 frontend/src/
-  app/auth/       Login + Register
-  app/dashboard/  Portfolio dashboard + balances
-  app/kyc/        KYC onboarding + status
-  app/deposit/    Deposit funds
-  app/withdraw/   Withdraw funds
-  app/exchange/   Asset exchange UI
-  app/bots/       Bot trading UI
-  app/admin/      Admin panel (dashboard, users, KYC, audit)
+├── app/
+│   ├── (admin)/                  Route group (all authenticated pages)
+│   │   ├── auth/
+│   │   │   ├── login/            Login page
+│   │   │   └── register/         Registration page
+│   │   ├── dashboard/            Portfolio dashboard + balances
+│   │   ├── kyc/                  KYC onboarding + status
+│   │   ├── wallets/              Wallet management + deposits + withdrawals
+│   │   ├── exchange/             Asset exchange UI
+│   │   ├── bots/                 Bot trading UI
+│   │   ├── ledger/               Transaction ledger viewer
+│   │   ├── audit/                Audit log viewer
+│   │   ├── notifications/        In-app notifications
+│   │   └── admin/                Admin panel
+│   │       ├── users/            User management
+│   │       └── kyc/              KYC review queue
+│   ├── api/proxy/                Next.js API route → backend proxy
+│   ├── globals.css               Tailwind v4 theme tokens + dark mode
+│   ├── layout.tsx                Root layout
+│   ├── page.tsx                  Root redirect
+│   └── providers.tsx             ThemeProvider + AuthProvider wrapper
+├── components/
+│   ├── layout/
+│   │   ├── Navbar.tsx            Top navigation bar
+│   │   └── Sidebar.tsx           Side navigation menu
+│   └── ui/
+│       ├── Button.tsx
+│       ├── Card.tsx
+│       ├── Input.tsx
+│       └── ThemeToggle.tsx       Light / dark mode toggle
+├── contexts/
+│   └── AuthContext.tsx           Global auth state + JWT management
+├── lib/
+│   ├── api.ts                    Axios client (base URL, interceptors)
+│   ├── auth.ts                   Token helpers (store, refresh, decode)
+│   ├── utils.ts                  Shared utilities
+│   └── __tests__/api.test.ts
+└── types/
+    └── index.ts                  Shared TypeScript types
 ```
 
-## Quick Start
+---
+
+## ⚡ Quick Start
 
 ```bash
+# 1. Copy environment files
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
-docker-compose up -d
 
-# Backend API docs: http://localhost:4000/api/docs
-# Frontend:         http://localhost:3000
-# Adminer (DB):     http://localhost:8080
+# 2. Spin up all services
+docker-compose up -d
 ```
 
-## Development
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:4000/api/docs |
+| Adminer (DB) | http://localhost:8080 |
+
+---
+
+## 🛠️ Local Development
 
 ```bash
-# Backend
+# Backend (hot reload)
 cd backend && npm install && npm run start:dev
 
-# Frontend
+# Frontend (hot reload)
 cd frontend && npm install && npm run dev
 ```
 
-## Roles
+---
 
-| Role | Description |
+## 🔐 Role-Based Access Control
+
+| Role | Access Level |
 |------|-------------|
-| USER | Basic platform access |
-| VERIFIED_USER | Full access after KYC |
-| COMPLIANCE_ADMIN | KYC review queue |
-| FINANCE_ADMIN | Payments and ledger |
-| SUPPORT_ADMIN | User support, read-only |
-| ADMIN | System configuration |
-| SUPER_ADMIN | Full access + kill switches |
+| `USER` | Basic platform access |
+| `VERIFIED_USER` | Full access after KYC verification |
+| `COMPLIANCE_ADMIN` | KYC review queue |
+| `FINANCE_ADMIN` | Payments and ledger management |
+| `SUPPORT_ADMIN` | Read-only user support |
+| `ADMIN` | System configuration |
+| `SUPER_ADMIN` | Full access + global kill switches |
 
-## API Highlights
+---
 
-- `POST /api/auth/register` - Register
-- `POST /api/auth/login` - Login (returns JWT + refresh token, or `requires2fa` flag)
-- `POST /api/auth/2fa/enable` - Enable TOTP 2FA (returns secret + otpauth URL)
-- `POST /api/auth/2fa/confirm` - Confirm 2FA setup with first TOTP code
-- `POST /api/auth/2fa/verify` - Complete 2FA login with TOTP code
-- `POST /api/kyc/start` - Start KYC (Onfido applicant + SDK token)
-- `POST /api/kyc/webhook` - KYC provider webhook (HMAC-verified)
-- `GET /api/portfolio/balances` - User balances
-- `POST /api/deposit/create` - Create deposit (Stripe PaymentIntent for CARD method)
-- `POST /api/payments/webhook` - Stripe payment webhook (HMAC-verified)
-- `POST /api/wallet/verify` - Verify wallet ownership via SIWE signature
-- `POST /api/exchange/quote` - Get exchange quote (30s expiry, live Binance prices)
-- `POST /api/exchange/execute` - Execute exchange
-- `GET /api/bots/backtest` - Run strategy backtest with candle simulation
-- `POST /api/bots/create-instance` - Start a bot
-- `POST /api/admin/bots/kill-switch` - Stop all bots globally
-- Full Swagger docs at `/api/docs`
+## 🌐 Key API Endpoints
 
-## Features
+```
+# Authentication
+POST /api/auth/register          Register a new user
+POST /api/auth/login             Login → JWT + refresh token (or requires2fa flag)
+POST /api/auth/2fa/enable        Enable TOTP 2FA (returns secret + otpauth URL)
+POST /api/auth/2fa/confirm       Confirm 2FA setup with first TOTP code
+POST /api/auth/2fa/verify        Complete 2FA login
 
-- [x] JWT auth with rotating refresh tokens
-- [x] 8-role RBAC with guards and decorators on every endpoint
-- [x] TOTP two-factor authentication (enable/confirm/disable/login enforcement)
-- [x] KYC flow: Onfido applicant creation, SDK token, HMAC-verified webhook, admin approve/reject
-- [x] WalletConnect wallet management with SIWE signature verification
-- [x] Multi-asset support (USD, BTC, ETH, USDT, USDC, BNB, SOL, ADA, XRP, DOGE — extensible)
-- [x] Double-entry ledger with pessimistic DB locking
-- [x] Deposits (Stripe PaymentIntent for card) and withdrawals with AML/sanctions screening
-- [x] Asset exchange: live Binance price feed (60s cache, mock fallback), quote (30s expiry) + execute with fee/spread
-- [x] Bot trading: strategy marketplace, instance lifecycle, backtesting, global kill switch
-- [x] Immutable audit log (append-only, indexed by actor/action/target)
-- [x] In-app + email notifications (nodemailer SMTP) with read tracking
-- [x] Admin panel: KPIs, user management, KYC queue, audit log viewer
-- [x] Swagger/OpenAPI at `/api/docs`
-- [x] Docker Compose: Postgres 15, Redis 7, backend, frontend, Adminer
+# KYC
+POST /api/kyc/start              Start KYC (Onfido applicant + SDK token)
+POST /api/kyc/webhook            KYC provider webhook (HMAC-verified)
 
-## Security
+# Portfolio & Wallets
+GET  /api/portfolio/balances     User balances
+POST /api/wallet/verify          Verify wallet via SIWE signature
 
-- bcrypt password hashing (12 rounds)
-- JWT access tokens (15m) + rotating refresh tokens (30d)
-- TOTP two-factor authentication via `otplib`
-- CORS restricted to `FRONTEND_URL`
-- Helmet HTTP security headers
-- Rate limiting: 100 req / 60s per IP
-- Immutable audit log for all privileged admin actions
-- Atomic balance transfers with pessimistic row-level DB locks
-- Stripe + Onfido webhook HMAC-SHA256 signature verification
-- AML/sanctions screening on every withdrawal (address + name)
+# Payments
+POST /api/deposit/create         Create deposit (Stripe PaymentIntent)
+POST /api/payments/webhook       Stripe webhook (HMAC-verified)
 
-## Phase 2 Roadmap
+# Exchange
+POST /api/exchange/quote         Get quote (30s expiry, live Binance prices)
+POST /api/exchange/execute       Execute exchange
 
-- [x] Real KYC provider (Onfido) with HMAC-SHA256 webhook verification
-- [x] Real payment provider (Stripe) deposit intent + HMAC webhook verification
-- [x] WalletConnect v2 on-chain SIWE signature verification
-- [x] TOTP two-factor authentication (enable / confirm / disable / login enforcement)
-- [x] Email notifications via SMTP (nodemailer, fire-and-forget)
-- [x] Bot backtesting and simulation mode (`GET /bots/backtest` with candle data + PnL)
-- [x] Binance live price feed (public REST, 60s TTL cache, mock fallback)
-- [x] AML/sanctions screening on withdrawals (address + name check before fund lock)
-- [x] GitHub Actions CI/CD pipeline
-- [x] TypeORM migrations (replace `synchronize: true` for production)
+# Bots
+GET  /api/bots/backtest          Run strategy backtest with candle simulation
+POST /api/bots/create-instance   Launch a bot instance
+POST /api/admin/bots/kill-switch Stop all bots globally
+```
+
+> Full interactive docs at **`/api/docs`** (Swagger/OpenAPI)
+
+---
+
+## 🏗️ Features
+
+- **Auth** — JWT with rotating refresh tokens, TOTP 2FA (enable / confirm / disable / enforce on login)
+- **RBAC** — 8-role system with guards and decorators on every endpoint
+- **KYC** — Onfido applicant creation, SDK token, HMAC-verified webhook, admin approve/reject queue
+- **Wallets** — WalletConnect v2 with SIWE on-chain signature verification
+- **Multi-asset** — USD, BTC, ETH, USDT, USDC, BNB, SOL, ADA, XRP, DOGE (extensible registry)
+- **Ledger** — Double-entry accounting with pessimistic DB row-level locking
+- **Payments** — Stripe PaymentIntent deposits + withdrawals with AML/sanctions screening
+- **Exchange** — Live Binance price feed (60s cache, mock fallback), quote → execute with fee/spread
+- **Bots** — Strategy marketplace, instance lifecycle management, backtesting, global kill switch
+- **Audit** — Append-only immutable audit log indexed by actor / action / target
+- **Notifications** — In-app + email (nodemailer SMTP) with read tracking
+- **Admin Panel** — KPIs, user management, KYC queue, audit log viewer
+- **CI/CD** — GitHub Actions pipeline with `npm ci` build + lint checks
+- **Infra** — Docker Compose with Postgres 15, Redis 7, backend, frontend, and Adminer
+
+---
+
+## 🛡️ Security Highlights
+
+- Passwords hashed with **bcrypt** (12 rounds)
+- **JWT access tokens** (15m expiry) + rotating refresh tokens (30d)
+- **TOTP 2FA** via `otplib`
+- **CORS** restricted to `FRONTEND_URL`
+- **Helmet** HTTP security headers
+- **Rate limiting** — 100 requests / 60s per IP
+- **Immutable audit log** for all privileged admin actions
+- **Atomic transfers** with pessimistic row-level DB locks
+- **HMAC-SHA256** signature verification on Stripe and Onfido webhooks
+- **AML / sanctions screening** on every withdrawal (address + name)

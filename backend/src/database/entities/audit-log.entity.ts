@@ -44,7 +44,10 @@ export class AuditLog {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => User, (user) => user.auditLogs, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => User, (user) => user.auditLogs, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'actorId' })
   actor!: User | null;
 }

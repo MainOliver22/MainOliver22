@@ -11,7 +11,9 @@ export class EmailService {
   constructor(private readonly configService: ConfigService) {
     const host = this.configService.get<string>('SMTP_HOST');
     if (!host) {
-      this.logger.warn('SMTP_HOST is not configured — email sending is disabled');
+      this.logger.warn(
+        'SMTP_HOST is not configured — email sending is disabled',
+      );
       this.transporter = null;
       this.from = '';
       return;
@@ -33,7 +35,9 @@ export class EmailService {
   /** Fire-and-forget email send. Logs success/failure but never throws. */
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
     if (!this.transporter) {
-      this.logger.warn(`Email skipped (SMTP not configured): to=${to} subject="${subject}"`);
+      this.logger.warn(
+        `Email skipped (SMTP not configured): to=${to} subject="${subject}"`,
+      );
       return;
     }
 
@@ -41,7 +45,9 @@ export class EmailService {
       await this.transporter.sendMail({ from: this.from, to, subject, html });
       this.logger.log(`Email sent: to=${to} subject="${subject}"`);
     } catch (err) {
-      this.logger.error(`Failed to send email to ${to}: ${(err as Error).message}`);
+      this.logger.error(
+        `Failed to send email to ${to}: ${(err as Error).message}`,
+      );
     }
   }
 }

@@ -32,7 +32,9 @@ export class BotsController {
   @Get('bots/backtest')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Run a strategy backtest against simulated price data' })
+  @ApiOperation({
+    summary: 'Run a strategy backtest against simulated price data',
+  })
   @ApiQuery({ name: 'strategyId', required: true, type: String })
   @ApiQuery({ name: 'assetSymbol', required: true, type: String })
   @ApiQuery({ name: 'days', required: false, type: Number })
@@ -137,7 +139,9 @@ export class BotsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin: pause all active bot instances (kill switch)' })
+  @ApiOperation({
+    summary: 'Admin: pause all active bot instances (kill switch)',
+  })
   adminPauseAll() {
     return this.botsService.adminPauseAll();
   }

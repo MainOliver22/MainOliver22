@@ -91,7 +91,8 @@ export class LedgerService {
         .where('account.id = :id', { id: toAccountId })
         .getOne();
 
-      if (!toAccount) throw new NotFoundException('Destination account not found');
+      if (!toAccount)
+        throw new NotFoundException('Destination account not found');
 
       const fromBalance = parseFloat(fromAccount.balance);
       const toBalance = parseFloat(toAccount.balance);
@@ -99,8 +100,12 @@ export class LedgerService {
       const newFromBalance = (fromBalance - numericAmount).toFixed(8);
       const newToBalance = (toBalance + numericAmount).toFixed(8);
 
-      await queryRunner.manager.update(Account, fromAccountId, { balance: newFromBalance });
-      await queryRunner.manager.update(Account, toAccountId, { balance: newToBalance });
+      await queryRunner.manager.update(Account, fromAccountId, {
+        balance: newFromBalance,
+      });
+      await queryRunner.manager.update(Account, toAccountId, {
+        balance: newToBalance,
+      });
 
       const debitEntry = queryRunner.manager.create(LedgerEntry, {
         transactionId,
@@ -160,15 +165,20 @@ export class LedgerService {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: LedgerEntry[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    entries: LedgerEntry[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const userAccounts = await this.accountRepo.find({ where: { userId } });
     const accountIds = userAccounts.map((a) => a.id);
 
     if (accountIds.length === 0) {
-      return { items: [], total: 0, page, limit };
+      return { entries: [], total: 0, page, limit };
     }
 
-    const [items, total] = await this.ledgerEntryRepo
+    const [entries, total] = await this.ledgerEntryRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.account', 'account')
       .leftJoinAndSelect('account.asset', 'asset')
@@ -179,6 +189,6 @@ export class LedgerService {
       .take(limit)
       .getManyAndCount();
 
-    return { items, total, page, limit };
+    return { entries, total, page, limit };
   }
 }

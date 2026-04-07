@@ -31,14 +31,20 @@ export class KycDocument {
   @Column({ type: 'varchar' })
   mimeType!: string;
 
-  @Column({ type: 'enum', enum: DocumentStatus, default: DocumentStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: DocumentStatus,
+    default: DocumentStatus.PENDING,
+  })
   status!: DocumentStatus;
 
   @CreateDateColumn()
   createdAt!: Date;
 
   @Index()
-  @ManyToOne(() => KycCase, (kycCase) => kycCase.documents, { onDelete: 'CASCADE' })
+  @ManyToOne(() => KycCase, (kycCase) => kycCase.documents, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'kycCaseId' })
   kycCase!: KycCase;
 }
