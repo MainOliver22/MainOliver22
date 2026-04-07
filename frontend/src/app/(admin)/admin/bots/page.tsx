@@ -82,7 +82,7 @@ export default function AdminBotsPage() {
                 <th className="pb-3 pr-4">Strategy</th>
                 <th className="pb-3 pr-4">Risk</th>
                 <th className="pb-3 pr-4">Allocated</th>
-                <th className="pb-3 pr-4">P&amp;L</th>
+                <th className="pb-3 pr-4">P&L</th>
                 <th className="pb-3 pr-4">Status</th>
                 <th className="pb-3">Started</th>
               </tr>
