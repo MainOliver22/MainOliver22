@@ -36,17 +36,46 @@ backend/src/
 ├── notifications/  In-app notifications (global module)
 └── database/       20 TypeORM entities + 29 enums
 
-frontend/src/app/(admin)/
-├── auth/           Login + Register
-├── dashboard/      Portfolio dashboard + balances
-├── kyc/            KYC onboarding + status
-├── wallets/        Wallet management + deposits + withdrawals
-├── exchange/       Asset exchange UI
-├── bots/           Bot trading UI
-├── ledger/         Transaction ledger viewer
-├── audit/          Audit log viewer
-├── notifications/  In-app notifications
-└── admin/          Admin panel (users, KYC queue)
+frontend/src/
+├── app/
+│   ├── (admin)/                  Route group (all authenticated pages)
+│   │   ├── auth/
+│   │   │   ├── login/            Login page
+│   │   │   └── register/         Registration page
+│   │   ├── dashboard/            Portfolio dashboard + balances
+│   │   ├── kyc/                  KYC onboarding + status
+│   │   ├── wallets/              Wallet management + deposits + withdrawals
+│   │   ├── exchange/             Asset exchange UI
+│   │   ├── bots/                 Bot trading UI
+│   │   ├── ledger/               Transaction ledger viewer
+│   │   ├── audit/                Audit log viewer
+│   │   ├── notifications/        In-app notifications
+│   │   └── admin/                Admin panel
+│   │       ├── users/            User management
+│   │       └── kyc/              KYC review queue
+│   ├── api/proxy/                Next.js API route → backend proxy
+│   ├── globals.css               Tailwind v4 theme tokens + dark mode
+│   ├── layout.tsx                Root layout
+│   ├── page.tsx                  Root redirect
+│   └── providers.tsx             ThemeProvider + AuthProvider wrapper
+├── components/
+│   ├── layout/
+│   │   ├── Navbar.tsx            Top navigation bar
+│   │   └── Sidebar.tsx           Side navigation menu
+│   └── ui/
+│       ├── Button.tsx
+│       ├── Card.tsx
+│       ├── Input.tsx
+│       └── ThemeToggle.tsx       Light / dark mode toggle
+├── contexts/
+│   └── AuthContext.tsx           Global auth state + JWT management
+├── lib/
+│   ├── api.ts                    Axios client (base URL, interceptors)
+│   ├── auth.ts                   Token helpers (store, refresh, decode)
+│   ├── utils.ts                  Shared utilities
+│   └── __tests__/api.test.ts
+└── types/
+    └── index.ts                  Shared TypeScript types
 ```
 
 ---
