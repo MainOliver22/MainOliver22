@@ -166,7 +166,7 @@ export class LedgerService {
     page: number,
     limit: number,
   ): Promise<{
-    items: LedgerEntry[];
+    entries: LedgerEntry[];
     total: number;
     page: number;
     limit: number;
@@ -175,10 +175,10 @@ export class LedgerService {
     const accountIds = userAccounts.map((a) => a.id);
 
     if (accountIds.length === 0) {
-      return { items: [], total: 0, page, limit };
+      return { entries: [], total: 0, page, limit };
     }
 
-    const [items, total] = await this.ledgerEntryRepo
+    const [entries, total] = await this.ledgerEntryRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.account', 'account')
       .leftJoinAndSelect('account.asset', 'asset')
@@ -189,6 +189,6 @@ export class LedgerService {
       .take(limit)
       .getManyAndCount();
 
-    return { items, total, page, limit };
+    return { entries, total, page, limit };
   }
 }

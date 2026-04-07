@@ -26,8 +26,9 @@ export class LedgerController {
 
   @Get('balances')
   @ApiOperation({ summary: 'Get all asset balances for the current user' })
-  getBalances(@CurrentUser() user: User) {
-    return this.ledgerService.getBalances(user.id);
+  async getBalances(@CurrentUser() user: User) {
+    const balances = await this.ledgerService.getBalances(user.id);
+    return { balances };
   }
 
   @Get('ledger')

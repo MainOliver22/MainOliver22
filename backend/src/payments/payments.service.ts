@@ -188,15 +188,20 @@ export class PaymentsService {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: Deposit[]; total: number; page: number; limit: number }> {
-    const [items, total] = await this.depositRepo.findAndCount({
+  ): Promise<{
+    deposits: Deposit[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const [deposits, total] = await this.depositRepo.findAndCount({
       where: { userId },
       relations: ['asset'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { deposits, total, page, limit };
   }
 
   async createWithdrawal(
@@ -283,19 +288,19 @@ export class PaymentsService {
     page: number,
     limit: number,
   ): Promise<{
-    items: Withdrawal[];
+    withdrawals: Withdrawal[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const [items, total] = await this.withdrawalRepo.findAndCount({
+    const [withdrawals, total] = await this.withdrawalRepo.findAndCount({
       where: { userId },
       relations: ['asset'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { withdrawals, total, page, limit };
   }
 
   async handleDepositWebhook(
@@ -477,31 +482,36 @@ export class PaymentsService {
   async getAllDeposits(
     page: number,
     limit: number,
-  ): Promise<{ items: Deposit[]; total: number; page: number; limit: number }> {
-    const [items, total] = await this.depositRepo.findAndCount({
+  ): Promise<{
+    deposits: Deposit[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const [deposits, total] = await this.depositRepo.findAndCount({
       relations: ['asset', 'user'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { deposits, total, page, limit };
   }
 
   async getAllWithdrawals(
     page: number,
     limit: number,
   ): Promise<{
-    items: Withdrawal[];
+    withdrawals: Withdrawal[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const [items, total] = await this.withdrawalRepo.findAndCount({
+    const [withdrawals, total] = await this.withdrawalRepo.findAndCount({
       relations: ['asset', 'user'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { withdrawals, total, page, limit };
   }
 }

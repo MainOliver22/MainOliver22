@@ -201,36 +201,36 @@ export class ExchangeService {
     page: number,
     limit: number,
   ): Promise<{
-    items: ExchangeOrder[];
+    orders: ExchangeOrder[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const [items, total] = await this.orderRepo.findAndCount({
+    const [orders, total] = await this.orderRepo.findAndCount({
       where: { userId },
       relations: ['fromAsset', 'toAsset'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { orders, total, page, limit };
   }
 
   async getAllOrders(
     page: number,
     limit: number,
   ): Promise<{
-    items: ExchangeOrder[];
+    orders: ExchangeOrder[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const [items, total] = await this.orderRepo.findAndCount({
+    const [orders, total] = await this.orderRepo.findAndCount({
       relations: ['fromAsset', 'toAsset', 'user'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { orders, total, page, limit };
   }
 }
