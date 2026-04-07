@@ -79,7 +79,7 @@ export class PriceFeedService {
             }
           });
         })
-        .on('error', reject);
+        .on('error', (err: Error) => reject(err));
     });
   }
 }
