@@ -31,14 +31,16 @@ backend/src/
   database/      20 TypeORM entities + 29 enums
 
 frontend/src/
-  app/auth/       Login + Register
-  app/dashboard/  Portfolio dashboard + balances
-  app/kyc/        KYC onboarding + status
-  app/deposit/    Deposit funds
-  app/withdraw/   Withdraw funds
-  app/exchange/   Asset exchange UI
-  app/bots/       Bot trading UI
-  app/admin/      Admin panel (dashboard, users, KYC, audit)
+  app/(admin)/auth/            Login + Register
+  app/(admin)/dashboard/       Portfolio dashboard + balances
+  app/(admin)/kyc/             KYC onboarding + status
+  app/(admin)/wallets/         Wallet management + deposits + withdrawals
+  app/(admin)/exchange/        Asset exchange UI
+  app/(admin)/bots/            Bot trading UI
+  app/(admin)/ledger/          Transaction ledger viewer
+  app/(admin)/audit/           Audit log viewer
+  app/(admin)/notifications/   In-app notifications
+  app/(admin)/admin/           Admin panel (users, KYC queue)
 ```
 
 ## Quick Start
