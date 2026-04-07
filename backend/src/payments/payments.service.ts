@@ -1,8 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const StripeConstructor = require('stripe') as new (
-  key: string,
-) => StripeInstance;
-import type { Stripe as StripeInstance } from 'stripe';
 import {
   BadRequestException,
   Injectable,
@@ -30,10 +25,40 @@ import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
 import { AmlService } from '../common/aml.service';
 import { User } from '../database/entities/user.entity';
 
+interface StripePaymentIntent {
+  id: string;
+  client_secret: string | null;
+}
+
+interface StripeWebhookEvent {
+  type: string;
+  data: { object: unknown };
+}
+
+interface StripeClient {
+  paymentIntents: {
+    create(params: {
+      amount: number;
+      currency: string;
+      metadata?: Record<string, string>;
+    }): Promise<StripePaymentIntent>;
+  };
+  webhooks: {
+    constructEvent(
+      payload: string,
+      signature: string,
+      secret: string,
+    ): StripeWebhookEvent;
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const createStripe = require('stripe') as (key: string) => StripeClient;
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
-  private readonly stripe: StripeInstance | null;
+  private readonly stripe: StripeClient | null;
 
   constructor(
     @InjectRepository(Deposit)
@@ -55,7 +80,7 @@ export class PaymentsService {
     private readonly amlService: AmlService,
   ) {
     const stripeKey = this.configService.get<string>('PAYMENT_STRIPE_KEY');
-    this.stripe = stripeKey ? new StripeConstructor(stripeKey) : null;
+    this.stripe = stripeKey ? createStripe(stripeKey) : null;
   }
 
   async createDeposit(userId: string, dto: CreateDepositDto): Promise<Deposit> {
@@ -294,17 +319,14 @@ export class PaymentsService {
       return { received: true };
     }
 
-    let event!: { type: string; data: { object: Record<string, unknown> } };
+    let event: StripeWebhookEvent;
     try {
       const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
       event = this.stripe.webhooks.constructEvent(
         rawBody,
         signature,
         webhookSecret,
-      ) as unknown as {
-        type: string;
-        data: { object: Record<string, unknown> };
-      };
+      );
     } catch (err) {
       this.logger.error(
         `Stripe webhook signature verification failed: ${(err as Error).message}`,
@@ -313,10 +335,7 @@ export class PaymentsService {
     }
 
     if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object as {
-        id: string;
-        client_secret: string | null;
-      };
+      const paymentIntent = event.data.object as StripePaymentIntent;
       const deposit = await this.depositRepo.findOne({
         where: { externalId: paymentIntent.id },
         relations: ['asset'],
