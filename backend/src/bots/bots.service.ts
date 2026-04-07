@@ -43,11 +43,12 @@ export class BotsService {
     private readonly priceFeedService: PriceFeedService,
   ) {}
 
-  async listStrategies(): Promise<BotStrategy[]> {
-    return this.strategyRepo.find({
+  async listStrategies(): Promise<{ strategies: BotStrategy[] }> {
+    const strategies = await this.strategyRepo.find({
       where: { isActive: true },
       order: { createdAt: 'DESC' },
     });
+    return { strategies };
   }
 
   async getStrategy(id: string): Promise<BotStrategy> {
@@ -138,12 +139,15 @@ export class BotsService {
     return this.instanceRepo.save(instance);
   }
 
-  async getUserInstances(userId: string): Promise<BotInstance[]> {
-    return this.instanceRepo.find({
+  async getUserInstances(
+    userId: string,
+  ): Promise<{ instances: BotInstance[] }> {
+    const instances = await this.instanceRepo.find({
       where: { userId },
       relations: ['strategy'],
       order: { createdAt: 'DESC' },
     });
+    return { instances };
   }
 
   async getInstance(userId: string, instanceId: string): Promise<BotInstance> {
@@ -296,18 +300,18 @@ export class BotsService {
     page: number,
     limit: number,
   ): Promise<{
-    items: BotInstance[];
+    instances: BotInstance[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const [items, total] = await this.instanceRepo.findAndCount({
+    const [instances, total] = await this.instanceRepo.findAndCount({
       relations: ['strategy', 'user'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { items, total, page, limit };
+    return { instances, total, page, limit };
   }
 
   async adminPauseAll(): Promise<{ affected: number }> {

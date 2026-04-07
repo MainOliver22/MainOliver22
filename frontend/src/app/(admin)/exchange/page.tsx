@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -89,7 +90,10 @@ export default function ExchangePage() {
   const toAsset = assets.find(a => a.id === toAssetId);
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="max-w-7xl mx-auto px-6 py-8">
+      <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Exchange</h1>
@@ -265,6 +269,8 @@ export default function ExchangePage() {
           </Card>
         </div>
       </div>
+      </div>
+      </main>
     </div>
   );
 }

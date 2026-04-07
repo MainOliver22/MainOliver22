@@ -37,15 +37,15 @@ export class AdminService {
     limit: number,
     status?: UserStatus,
     role?: UserRole,
-  ): Promise<{ items: User[]; total: number; page: number; limit: number }> {
+  ): Promise<{ users: User[]; total: number; page: number; limit: number }> {
     const qb = this.userRepo
       .createQueryBuilder('user')
       .orderBy('user.createdAt', 'DESC');
     if (status) qb.andWhere('user.status = :status', { status });
     if (role) qb.andWhere('user.role = :role', { role });
     qb.skip((page - 1) * limit).take(limit);
-    const [items, total] = await qb.getManyAndCount();
-    return { items, total, page, limit };
+    const [users, total] = await qb.getManyAndCount();
+    return { users, total, page, limit };
   }
 
   async getUserDetail(userId: string): Promise<{

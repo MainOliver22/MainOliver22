@@ -268,8 +268,8 @@ export class KycService {
       query.where('kycCase.status = :status', { status });
     }
 
-    const [items, total] = await query.getManyAndCount();
-    return { items, total, page, limit };
+    const [cases, total] = await query.getManyAndCount();
+    return { cases, total, page, limit };
   }
 
   async approveCase(id: string, reviewedBy: string) {

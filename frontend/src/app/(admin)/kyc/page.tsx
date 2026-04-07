@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Navbar from '@/components/layout/Navbar';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -134,12 +135,17 @@ export default function KycPage() {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loadingStatus) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Identity Verification (KYC)</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Verify your identity to unlock full platform access</p>
-        </div>
-        <Card><p className="text-sm text-gray-500 animate-pulse">Loading verification status…</p></Card>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <main className="max-w-3xl mx-auto px-6 py-8">
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Identity Verification (KYC)</h1>
+              <p className="text-sm text-gray-500 mt-0.5">Verify your identity to unlock full platform access</p>
+            </div>
+            <Card><p className="text-sm text-gray-500 animate-pulse">Loading verification status…</p></Card>
+          </div>
+        </main>
       </div>
     );
   }
@@ -147,60 +153,65 @@ export default function KycPage() {
   // ── Already has a case (and not rejected / restarting) ───────────────────────
   if (kycCase && kycCase.status !== 'NOT_STARTED') {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Identity Verification (KYC)</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Verify your identity to unlock full platform access</p>
-        </div>
-
-        <Card className="max-w-lg">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Verification Status</CardTitle>
-              <StatusBadge status={kycCase.status} />
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <main className="max-w-3xl mx-auto px-6 py-8">
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Identity Verification (KYC)</h1>
+              <p className="text-sm text-gray-500 mt-0.5">Verify your identity to unlock full platform access</p>
             </div>
-          </CardHeader>
 
-          <dl className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-gray-50">
-              <dt className="text-gray-500">Verification level</dt>
-              <dd className="font-medium text-gray-900">{kycCase.level}</dd>
-            </div>
-            <div className="flex justify-between py-2 border-b border-gray-50">
-              <dt className="text-gray-500">Submitted</dt>
-              <dd className="font-medium text-gray-900">{new Date(kycCase.createdAt).toLocaleDateString()}</dd>
-            </div>
-          </dl>
+            <Card className="max-w-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Verification Status</CardTitle>
+                  <StatusBadge status={kycCase.status} />
+                </div>
+              </CardHeader>
 
-          {success && (
-            <p className="mt-4 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-md">{success}</p>
-          )}
+              <dl className="space-y-3 text-sm">
+                <div className="flex justify-between py-2 border-b border-gray-50">
+                  <dt className="text-gray-500">Verification level</dt>
+                  <dd className="font-medium text-gray-900">{kycCase.level}</dd>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-50">
+                  <dt className="text-gray-500">Submitted</dt>
+                  <dd className="font-medium text-gray-900">{new Date(kycCase.createdAt).toLocaleDateString()}</dd>
+                </div>
+              </dl>
 
-          {kycCase.status === 'APPROVED' && (
-            <div className="mt-4 bg-green-50 rounded-lg p-4">
-              <p className="text-sm text-green-800 font-medium">✓ Your identity has been verified</p>
-              <p className="text-sm text-green-700 mt-1">You have full access to deposits, withdrawals, and bot trading.</p>
-            </div>
-          )}
+              {success && (
+                <p className="mt-4 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-md">{success}</p>
+              )}
 
-          {kycCase.status === 'PENDING' || kycCase.status === 'IN_REVIEW' ? (
-            <div className="mt-4 bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-blue-800 font-medium">Your submission is being reviewed</p>
-              <p className="text-sm text-blue-700 mt-1">This typically takes 1–2 business days. We will notify you by email.</p>
-            </div>
-          ) : null}
+              {kycCase.status === 'APPROVED' && (
+                <div className="mt-4 bg-green-50 rounded-lg p-4">
+                  <p className="text-sm text-green-800 font-medium">✓ Your identity has been verified</p>
+                  <p className="text-sm text-green-700 mt-1">You have full access to deposits, withdrawals, and bot trading.</p>
+                </div>
+              )}
 
-          {kycCase.status === 'REJECTED' && (
-            <div className="mt-4 space-y-3">
-              <div className="bg-red-50 rounded-lg p-4">
-                <p className="text-sm text-red-800 font-medium">Verification was not successful</p>
-                <p className="text-sm text-red-700 mt-1">Please restart the process and ensure your documents are clear and valid.</p>
-              </div>
-              {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{error}</p>}
-              <Button onClick={handleRetry} variant="danger">Retry Verification</Button>
-            </div>
-          )}
-        </Card>
+              {kycCase.status === 'PENDING' || kycCase.status === 'IN_REVIEW' ? (
+                <div className="mt-4 bg-blue-50 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 font-medium">Your submission is being reviewed</p>
+                  <p className="text-sm text-blue-700 mt-1">This typically takes 1–2 business days. We will notify you by email.</p>
+                </div>
+              ) : null}
+
+              {kycCase.status === 'REJECTED' && (
+                <div className="mt-4 space-y-3">
+                  <div className="bg-red-50 rounded-lg p-4">
+                    <p className="text-sm text-red-800 font-medium">Verification was not successful</p>
+                    <p className="text-sm text-red-700 mt-1">Please restart the process and ensure your documents are clear and valid.</p>
+                  </div>
+                  {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{error}</p>}
+                  <Button onClick={handleRetry} variant="danger">Retry Verification</Button>
+                </div>
+              )}
+            </Card>
+          </div>
+        </main>
       </div>
     );
   }
@@ -209,7 +220,10 @@ export default function KycPage() {
   const docType = DOCUMENT_TYPES.find(d => d.value === form.documentType);
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="max-w-3xl mx-auto px-6 py-8">
+      <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Identity Verification (KYC)</h1>
         <p className="text-sm text-gray-500 mt-0.5">Complete all steps to verify your identity</p>
@@ -346,6 +360,8 @@ export default function KycPage() {
           </Card>
         )}
       </div>
+      </div>
+      </main>
     </div>
   );
 }

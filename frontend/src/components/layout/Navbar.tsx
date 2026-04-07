@@ -16,8 +16,8 @@ export default function Navbar() {
             <Link href="/dashboard" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Dashboard</Link>
             <Link href="/bots" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Bots</Link>
             <Link href="/exchange" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Exchange</Link>
-            <Link href="/deposit" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Deposit</Link>
-            <Link href="/withdraw" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Withdraw</Link>
+            <Link href="/wallets" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Deposit</Link>
+            <Link href="/wallets" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Withdraw</Link>
             <Link href="/notifications" className="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"><Bell className="h-5 w-5" /></Link>
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
