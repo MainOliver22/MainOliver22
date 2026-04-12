@@ -170,6 +170,50 @@ interface AuditLog {
   createdAt: string;
 }
 
+interface AdminDeposit {
+  id: string;
+  amount: string;
+  method: string;
+  status: string;
+  createdAt: string;
+  asset?: { symbol: string };
+  user?: { email: string; firstName: string; lastName: string };
+}
+
+interface AdminWithdrawal {
+  id: string;
+  amount: string;
+  method: string;
+  status: string;
+  createdAt: string;
+  asset?: { symbol: string };
+  user?: { email: string; firstName: string; lastName: string };
+}
+
+interface AdminBotInstance {
+  id: string;
+  allocatedAmount: string;
+  currentValue: string;
+  pnl: string;
+  status: string;
+  createdAt: string;
+  strategy?: { name: string; riskLevel: string };
+  user?: { email: string; firstName: string; lastName: string };
+}
+
+interface AdminOrder {
+  id: string;
+  fromAmount: string;
+  toAmount: string;
+  rate: string;
+  fee: string;
+  status: string;
+  createdAt: string;
+  fromAsset?: { symbol: string };
+  toAsset?: { symbol: string };
+  user?: { email: string; firstName: string; lastName: string };
+}
+
 export const adminApi = {
   getDashboard: () =>
     api.get<AdminDashStats>('/admin/dashboard').then(r => r.data),
@@ -194,6 +238,27 @@ export const adminApi = {
 
   getAuditLogs: (action = '', page = 1, limit = 50) =>
     api.get<{ logs: AuditLog[] }>(`/admin/audit-logs?action=${action}&page=${page}&limit=${limit}`).then(r => r.data.logs),
+
+  getDeposits: (page = 1, limit = 50) =>
+    api.get<{ deposits: AdminDeposit[]; total: number }>(`/admin/deposits?page=${page}&limit=${limit}`).then(r => r.data),
+
+  getWithdrawals: (page = 1, limit = 50) =>
+    api.get<{ withdrawals: AdminWithdrawal[]; total: number }>(`/admin/withdrawals?page=${page}&limit=${limit}`).then(r => r.data),
+
+  approveWithdrawal: (id: string) =>
+    api.patch(`/admin/withdrawals/${id}/approve`).then(r => r.data),
+
+  rejectWithdrawal: (id: string, reason: string) =>
+    api.patch(`/admin/withdrawals/${id}/reject`, { reason }).then(r => r.data),
+
+  getBotInstances: (page = 1, limit = 50) =>
+    api.get<{ instances: AdminBotInstance[]; total: number }>(`/admin/bots/instances?page=${page}&limit=${limit}`).then(r => r.data),
+
+  botKillSwitch: () =>
+    api.post<{ affected: number }>('/admin/bots/kill-switch').then(r => r.data),
+
+  getExchangeOrders: (page = 1, limit = 50) =>
+    api.get<{ orders: AdminOrder[]; total: number }>(`/admin/exchange/orders?page=${page}&limit=${limit}`).then(r => r.data),
 };
 
 export default api;
