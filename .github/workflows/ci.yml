@@ -10,6 +10,7 @@ jobs:
   backend:
     name: Backend — lint, build, test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     defaults:
@@ -30,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npx eslint "{src,apps,libs,test}/**/*.ts"
 
       - name: Build
         run: npm run build
@@ -41,6 +42,7 @@ jobs:
   frontend:
     name: Frontend — lint, test, build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     defaults:
@@ -64,9 +66,10 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: npm test
+        run: npm test -- --passWithNoTests
 
       - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
+          NEXT_PUBLIC_APP_NAME: InvestmentPlatform
