@@ -54,6 +54,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
@@ -62,6 +64,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
       NEXT_PUBLIC_APP_NAME: InvestmentPlatform
+      BACKEND_URL: http://backend:4000/api
 
   adminer:
     image: adminer:latest
