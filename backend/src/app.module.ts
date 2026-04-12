@@ -48,43 +48,50 @@ import {
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>(
-          'DATABASE_URL',
-          'postgresql://postgres:postgres@localhost:5432/investplatform',
-        ),
-        entities: [
-          User,
-          RefreshToken,
-          KycCase,
-          KycDocument,
-          Wallet,
-          Asset,
-          Account,
-          LedgerEntry,
-          Transaction,
-          Deposit,
-          Withdrawal,
-          ExchangeOrder,
-          BotStrategy,
-          BotInstance,
-          Trade,
-          AuditLog,
-          NotificationEntity,
-          SupportTicket,
-          RiskRule,
-          FeeConfig,
-        ],
-        synchronize:
-          config.get<string>('NODE_ENV', 'development') === 'development',
-        logging:
-          config.get<string>('NODE_ENV', 'development') === 'development',
-        ssl:
-          config.get<string>('NODE_ENV') === 'production'
-            ? { rejectUnauthorized: false }
+      useFactory: (config: ConfigService) => {
+        const isDevelopment =
+          config.get<string>('NODE_ENV', 'development') === 'development';
+        const dbSslEnabled =
+          config.get<string>('DB_SSL', isDevelopment ? 'false' : 'true') ===
+          'true';
+        const dbRejectUnauthorized =
+          config.get<string>('DB_SSL_REJECT_UNAUTHORIZED', 'false') === 'true';
+
+        return {
+          type: 'postgres',
+          url: config.get<string>(
+            'DATABASE_URL',
+            'postgresql://postgres:postgres@localhost:5432/investplatform',
+          ),
+          entities: [
+            User,
+            RefreshToken,
+            KycCase,
+            KycDocument,
+            Wallet,
+            Asset,
+            Account,
+            LedgerEntry,
+            Transaction,
+            Deposit,
+            Withdrawal,
+            ExchangeOrder,
+            BotStrategy,
+            BotInstance,
+            Trade,
+            AuditLog,
+            NotificationEntity,
+            SupportTicket,
+            RiskRule,
+            FeeConfig,
+          ],
+          synchronize: isDevelopment,
+          logging: isDevelopment,
+          ssl: dbSslEnabled
+            ? { rejectUnauthorized: dbRejectUnauthorized }
             : false,
-      }),
+        };
+      },
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     AuditModule,
