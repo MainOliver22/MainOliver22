@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.5 # 0ff4204d59e8e51228ff73bce53f80d53301dee2
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -24,6 +24,6 @@ jobs:
             cd ~/MainOliver22
             git fetch origin gh-branch
             git reset --hard origin/gh-branch
-            docker compose pull --quiet || true
+            docker compose pull --quiet
             docker compose up -d --build --remove-orphans
             docker image prune -f
