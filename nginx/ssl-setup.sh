@@ -24,26 +24,25 @@ apt-get update -qq
 apt-get install -y -qq certbot python3-certbot-nginx
 
 echo "==> Obtaining certificate for ${DOMAIN} and www.${DOMAIN}..."
-certbot --nginx \
+certbot certonly --standalone \
   -d "${DOMAIN}" \
   -d "www.${DOMAIN}" \
   --non-interactive \
   --agree-tos \
   --email "${EMAIL}" \
-  --redirect
+  --pre-hook "systemctl stop nginx" \
+  --post-hook "systemctl start nginx"
 
 echo "==> Obtaining certificate for ${API_DOMAIN}..."
-certbot --nginx \
+certbot certonly --standalone \
   -d "${API_DOMAIN}" \
   --non-interactive \
   --agree-tos \
   --email "${EMAIL}" \
-  --redirect
+  --pre-hook "systemctl stop nginx" \
+  --post-hook "systemctl start nginx"
 
-echo "==> Testing automatic renewal..."
-certbot renew --dry-run
-
-echo "==> Reloading Nginx..."
+echo "==> Reloading Nginx with SSL configuration..."
 nginx -t && systemctl reload nginx
 
 echo ""
