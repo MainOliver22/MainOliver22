@@ -1,4 +1,3 @@
-import * as crypto from 'crypto';
 import {
   Injectable,
   ConflictException,
@@ -8,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ethers } from 'ethers';
 import { Wallet } from '../database/entities/wallet.entity';
 import { WalletConnection } from '../database/enums/wallet-connection.enum';
 import { ConnectWalletDto } from './dto/connect-wallet.dto';
@@ -74,9 +74,9 @@ export class WalletsService {
   /**
    * Verify a wallet via SIWE (Sign-In with Ethereum) signature.
    *
-   * TODO: Full ECDSA recovery (ecrecover) requires an Ethereum library like ethers.js or viem.
-   * Since neither is available in the backend, we perform a basic sanity check and log a warning.
-   * Replace this stub with real EC recovery when an eth library is added to the backend dependencies.
+   * Performs full ECDSA recovery using ethers.js: recovers the signing address
+   * from the Ethereum personal-sign hash of the message and compares it to the
+   * claimed address.  Marks the wallet as verified on success.
    */
   async verifyWallet(
     userId: string,
@@ -91,30 +91,28 @@ export class WalletsService {
       throw new NotFoundException('Wallet not found for this user and address');
     }
 
-    this.logger.warn(
-      'SIWE stub: real ECDSA recovery requires an Ethereum library. ' +
-        'Performing basic message/address sanity check only.',
-    );
-
-    // Basic SIWE sanity check: the signed message must contain the claimed address
-    const lowerAddress = address.toLowerCase();
-    const messageContainsAddress = message.toLowerCase().includes(lowerAddress);
-    if (!messageContainsAddress) {
-      throw new BadRequestException(
-        'SIWE message does not reference the claimed address',
-      );
-    }
-
-    // Verify the signature buffer is a valid hex and has the right length (65 bytes = 130 hex chars)
+    // Validate signature format: 65 bytes → 130 hex chars (with or without 0x prefix)
     const sigHex = signature.startsWith('0x') ? signature.slice(2) : signature;
     if (!/^[0-9a-fA-F]{130}$/.test(sigHex)) {
       throw new BadRequestException('Invalid signature format');
     }
 
-    // Derive a deterministic check: SHA256(message) must not trivially mismatch
-    const msgHash = crypto.createHash('sha256').update(message).digest('hex');
+    // Recover the signing address using Ethereum personal-sign (EIP-191)
+    let recoveredAddress: string;
+    try {
+      recoveredAddress = ethers.verifyMessage(message, signature);
+    } catch {
+      throw new BadRequestException('Signature verification failed');
+    }
+
+    if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+      throw new BadRequestException(
+        'Signature does not match the claimed address',
+      );
+    }
+
     this.logger.log(
-      `SIWE verification for address=${address} msgHash=${msgHash}`,
+      `SIWE verification succeeded for address=${address} userId=${userId}`,
     );
 
     wallet.isVerified = true;
