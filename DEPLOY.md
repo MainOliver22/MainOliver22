@@ -64,7 +64,7 @@ ufw --force enable
 cd ~
 git clone https://github.com/MainOliver22/MainOliver22.git
 cd MainOliver22
-git checkout gh-branch
+git checkout main
 ```
 
 ---
@@ -163,7 +163,7 @@ cat ~/.ssh/deploy_key.pub >> ~/.ssh/authorized_keys   # on the server
 # Copy ~/.ssh/deploy_key (private key) to the DEPLOY_SSH_KEY secret
 ```
 
-Once secrets are set, every push to `gh-branch` that passes CI will automatically deploy to the VPS.
+Once secrets are set, every push to `main` that passes CI will automatically deploy to the VPS.
 
 ---
 
