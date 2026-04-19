@@ -11,6 +11,9 @@ export class InitialSchema1713000000000 implements MigrationInterface {
   name = 'InitialSchema1713000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // ── Ensure uuid-ossp extension is available ───────────────────────────────
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+
     // ── Enums ────────────────────────────────────────────────────────────────
     await queryRunner.query(
       `CREATE TYPE "public"."user_role_enum" AS ENUM('GUEST','USER','VERIFIED_USER','ADMIN','COMPLIANCE_ADMIN','FINANCE_ADMIN','SUPPORT_ADMIN','SUPER_ADMIN')`,
@@ -487,8 +490,7 @@ export class InitialSchema1713000000000 implements MigrationInterface {
     `);
 
     // ── Enable uuid-ossp extension ────────────────────────────────────────────
-    // (run before table creation in a real migration — here it's shown for completeness)
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    // (already created at the top of up(); included here only as documentation)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
