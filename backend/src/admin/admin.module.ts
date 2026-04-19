@@ -6,13 +6,9 @@ import { Withdrawal } from '../database/entities/withdrawal.entity';
 import { BotInstance } from '../database/entities/bot-instance.entity';
 import { KycCase } from '../database/entities/kyc-case.entity';
 import { Account } from '../database/entities/account.entity';
-import { FeeConfig } from '../database/entities/fee-config.entity';
-import { RiskRule } from '../database/entities/risk-rule.entity';
 import { AuditModule } from '../audit/audit.module';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
-import { SettingsService } from './settings.service';
-import { SettingsController } from './settings.controller';
 
 @Module({
   imports: [
@@ -23,13 +19,11 @@ import { SettingsController } from './settings.controller';
       BotInstance,
       KycCase,
       Account,
-      FeeConfig,
-      RiskRule,
     ]),
     AuditModule,
   ],
-  providers: [AdminService, SettingsService],
-  controllers: [AdminController, SettingsController],
-  exports: [AdminService, SettingsService],
+  providers: [AdminService],
+  controllers: [AdminController],
+  exports: [AdminService],
 })
 export class AdminModule {}
