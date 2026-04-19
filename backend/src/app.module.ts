@@ -15,6 +15,9 @@ import { ExchangeModule } from './exchange/exchange.module';
 import { BotsModule } from './bots/bots.module';
 import { AdminModule } from './admin/admin.module';
 import { CommonModule } from './common/common.module';
+import { SupportModule } from './support/support.module';
+import { HealthModule } from './health/health.module';
+import { EventsModule } from './events/events.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -107,6 +110,9 @@ import {
     BotsModule,
     AdminModule,
     CommonModule,
+    SupportModule,
+    HealthModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

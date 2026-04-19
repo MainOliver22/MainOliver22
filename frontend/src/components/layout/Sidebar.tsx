@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, ShieldCheck, CreditCard, TrendingUp, Bot, FileText, BarChart3, Settings } from 'lucide-react';
+import { Users, ShieldCheck, CreditCard, TrendingUp, Bot, FileText, BarChart3, Settings, LifeBuoy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const adminLinks = [
@@ -11,6 +11,7 @@ const adminLinks = [
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { href: '/admin/exchange', icon: TrendingUp, label: 'Exchange' },
   { href: '/admin/bots', icon: Bot, label: 'Bots' },
+  { href: '/admin/support', icon: LifeBuoy, label: 'Support Queue' },
   { href: '/audit', icon: FileText, label: 'Audit Logs' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];

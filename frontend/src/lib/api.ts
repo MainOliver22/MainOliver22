@@ -11,6 +11,7 @@ import type {
   KycCase,
   Notification,
   User,
+  SupportTicket,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -60,7 +61,7 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: (credentials: { email: string; password: string }) =>
-    api.post<{ accessToken: string; refreshToken: string }>('/auth/login', credentials).then(r => r.data),
+    api.post<{ accessToken: string; refreshToken: string } | { requires2fa: true; tempToken: string }>('/auth/login', credentials).then(r => r.data),
 
   register: (data: {
     email: string;
@@ -69,6 +70,18 @@ export const authApi = {
     lastName: string;
     phone?: string;
   }) => api.post<{ message: string }>('/auth/register', data).then(r => r.data),
+
+  verify2fa: (tempToken: string, totpCode: string) =>
+    api.post<{ accessToken: string; refreshToken: string }>('/auth/2fa/verify', { tempToken, totpCode }).then(r => r.data),
+
+  enable2fa: () =>
+    api.post<{ secret: string; otpauthUrl: string }>('/auth/2fa/enable').then(r => r.data),
+
+  confirm2fa: (token: string) =>
+    api.post<{ message: string }>('/auth/2fa/confirm', { token }).then(r => r.data),
+
+  disable2fa: (token: string) =>
+    api.post<{ message: string }>('/auth/2fa/disable', { token }).then(r => r.data),
 };
 
 export const assetsApi = {
@@ -213,6 +226,43 @@ interface AdminOrder {
   toAsset?: { symbol: string };
   user?: { email: string; firstName: string; lastName: string };
 }
+
+export const supportApi = {
+  createTicket: (body: { subject: string; description: string; category: string; priority?: string }) =>
+    api.post('/support', body).then(r => r.data),
+
+  getMyTickets: (page = 1, limit = 20) =>
+    api.get<{ tickets: SupportTicket[]; total: number }>(`/support/my?page=${page}&limit=${limit}`).then(r => r.data),
+
+  getMyTicket: (id: string) =>
+    api.get<SupportTicket>(`/support/my/${id}`).then(r => r.data),
+};
+
+export const adminSupportApi = {
+  getAll: (page = 1, limit = 50, status?: string) =>
+    api.get<{ tickets: SupportTicket[]; total: number }>(`/support/admin?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`).then(r => r.data),
+
+  getById: (id: string) =>
+    api.get<SupportTicket>(`/support/admin/${id}`).then(r => r.data),
+
+  update: (id: string, data: { status?: string; priority?: string; assignedTo?: string }) =>
+    api.patch<SupportTicket>(`/support/admin/${id}`, data).then(r => r.data),
+
+  resolve: (id: string) =>
+    api.patch<SupportTicket>(`/support/admin/${id}/resolve`).then(r => r.data),
+};
+
+export const adminSettingsApi = {
+  listFees: () => api.get('/admin/settings/fees').then(r => r.data),
+  createFee: (data: Record<string, unknown>) => api.post('/admin/settings/fees', data).then(r => r.data),
+  updateFee: (id: string, data: Record<string, unknown>) => api.patch(`/admin/settings/fees/${id}`, data).then(r => r.data),
+  deleteFee: (id: string) => api.delete(`/admin/settings/fees/${id}`).then(r => r.data),
+
+  listRiskRules: () => api.get('/admin/settings/risk-rules').then(r => r.data),
+  createRiskRule: (data: Record<string, unknown>) => api.post('/admin/settings/risk-rules', data).then(r => r.data),
+  updateRiskRule: (id: string, data: Record<string, unknown>) => api.patch(`/admin/settings/risk-rules/${id}`, data).then(r => r.data),
+  deleteRiskRule: (id: string) => api.delete(`/admin/settings/risk-rules/${id}`).then(r => r.data),
+};
 
 export const adminApi = {
   getDashboard: () =>
