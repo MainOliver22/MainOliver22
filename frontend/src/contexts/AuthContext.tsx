@@ -41,7 +41,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => { fetchUser(); }, []);
 
   const login = async (email: string, password: string) => {
-    const { accessToken, refreshToken } = await authApi.login({ email, password });
+    const result = await authApi.login({ email, password });
+
+    // Handle 2FA challenge
+    if ('requires2fa' in result && result.requires2fa) {
+      router.push(`/auth/2fa?token=${encodeURIComponent(result.tempToken)}`);
+      return;
+    }
+
+    const { accessToken, refreshToken } = result as { accessToken: string; refreshToken: string };
     setTokens(accessToken, refreshToken);
     // Fetch the user profile now that tokens are stored
     try {

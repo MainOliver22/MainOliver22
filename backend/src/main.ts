@@ -1,12 +1,19 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, Logger, LogLevel } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Configure log levels based on NODE_ENV
+  const isProduction = process.env['NODE_ENV'] === 'production';
+  const logLevels: LogLevel[] = isProduction
+    ? ['error', 'warn', 'log']
+    : ['error', 'warn', 'log', 'debug', 'verbose'];
+
+  const app = await NestFactory.create(AppModule, { logger: logLevels });
+  const logger = new Logger('Bootstrap');
   const configService = app.get(ConfigService);
 
   // Security
@@ -36,8 +43,9 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT', 4000);
   await app.listen(port);
-  console.log(`Application running on port ${port}`);
-  console.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  logger.log(`Application running on port ${port}`);
+  logger.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  logger.log(`Environment: ${configService.get<string>('NODE_ENV', 'development')}`);
 }
 void bootstrap().catch((err: unknown) => {
   console.error(err);
