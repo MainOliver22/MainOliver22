@@ -18,8 +18,6 @@ export default function Navbar() {
             <Link href="/exchange" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Exchange</Link>
             <Link href="/wallets" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Deposit</Link>
             <Link href="/wallets" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Withdraw</Link>
-            <Link href="/support" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Support</Link>
-            <Link href="/settings" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Settings</Link>
             <Link href="/notifications" className="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"><Bell className="h-5 w-5" /></Link>
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />

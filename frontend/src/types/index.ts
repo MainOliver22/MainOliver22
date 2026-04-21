@@ -7,7 +7,6 @@ export interface User {
   role: string;
   status: string;
   emailVerified: boolean;
-  twoFactorEnabled: boolean;
   createdAt: string;
 }
 
@@ -96,18 +95,4 @@ export interface Notification {
   message: string;
   isRead: boolean;
   createdAt: string;
-}
-
-export interface SupportTicket {
-  id: string;
-  subject: string;
-  description: string;
-  category: string;
-  status: string;
-  priority: string;
-  createdAt: string;
-  updatedAt: string;
-  resolvedAt?: string | null;
-  user?: { email: string; firstName: string; lastName: string };
-  assignee?: { email: string; firstName: string; lastName: string } | null;
 }
