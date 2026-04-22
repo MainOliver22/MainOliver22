@@ -42,7 +42,7 @@ certbot certonly --standalone \
   --email "${EMAIL}"
 
 echo "==> Starting Nginx with SSL configuration..."
-systemctl start nginx
+nginx -t && systemctl start nginx
 
 echo ""
 echo "SSL certificates installed successfully!"
