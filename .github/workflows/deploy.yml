@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
 
     steps:
       - name: Deploy via SSH
@@ -22,7 +22,7 @@ jobs:
           script: |
             set -e
             cd ~/MainOliver22
-            git fetch origin main
+            git fetch origin
             git reset --hard origin/main
             docker compose pull --quiet
             docker compose up -d --build --remove-orphans

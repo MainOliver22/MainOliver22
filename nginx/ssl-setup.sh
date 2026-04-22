@@ -21,7 +21,10 @@ EMAIL="admin@qfx-finance.com"  # Change to a real contact email
 
 echo "==> Installing Certbot..."
 apt-get update -qq
-apt-get install -y -qq certbot python3-certbot-nginx
+apt-get install -y -qq certbot
+
+echo "==> Stopping Nginx to free port 80..."
+systemctl stop nginx
 
 echo "==> Obtaining certificate for ${DOMAIN} and www.${DOMAIN}..."
 certbot certonly --standalone \
@@ -29,21 +32,17 @@ certbot certonly --standalone \
   -d "www.${DOMAIN}" \
   --non-interactive \
   --agree-tos \
-  --email "${EMAIL}" \
-  --pre-hook "systemctl stop nginx" \
-  --post-hook "systemctl start nginx"
+  --email "${EMAIL}"
 
 echo "==> Obtaining certificate for ${API_DOMAIN}..."
 certbot certonly --standalone \
   -d "${API_DOMAIN}" \
   --non-interactive \
   --agree-tos \
-  --email "${EMAIL}" \
-  --pre-hook "systemctl stop nginx" \
-  --post-hook "systemctl start nginx"
+  --email "${EMAIL}"
 
-echo "==> Reloading Nginx with SSL configuration..."
-nginx -t && systemctl reload nginx
+echo "==> Starting Nginx with SSL configuration..."
+systemctl start nginx
 
 echo ""
 echo "SSL certificates installed successfully!"
