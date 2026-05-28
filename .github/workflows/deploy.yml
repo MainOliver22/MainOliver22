@@ -21,7 +21,8 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             set -e
-            cd ~/MainOliver22
+            REPO_DIR="${{ github.event.repository.name }}"
+            cd "$HOME/$REPO_DIR"
             git fetch origin main
             git reset --hard origin/main
             docker compose pull --quiet || true
