@@ -62,4 +62,4 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://api.qfx-finance.com
+          NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
