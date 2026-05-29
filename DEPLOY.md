@@ -1,6 +1,6 @@
-# Deployment Guide — qfx-finance.com
+# Deployment Guide — fortress-fund.com
 
-This document explains every step needed to get `https://qfx-finance.com` and `https://api.qfx-finance.com` live on the VPS.
+This document explains every step needed to get `https://fortress-fund.com` and `https://api.fortress-fund.com` live on the VPS.
 
 ---
 
@@ -10,15 +10,15 @@ This document explains every step needed to get `https://qfx-finance.com` and `h
 |------|-------|
 | Server IP | `199.192.21.55` |
 | OS | Ubuntu 22.04+ (recommended) |
-| Frontend URL | `https://qfx-finance.com` |
-| Backend API URL | `https://api.qfx-finance.com/api` |
-| Swagger Docs | `https://api.qfx-finance.com/api/docs` |
+| Frontend URL | `https://fortress-fund.com` |
+| Backend API URL | `https://api.fortress-fund.com/api` |
+| Swagger Docs | `https://api.fortress-fund.com/api/docs` |
 
 ---
 
 ## 1 — DNS Configuration
 
-At your domain registrar (wherever `qfx-finance.com` is registered), create the following **A records**:
+At your domain registrar (wherever `fortress-fund.com` is registered), create the following **A records**:
 
 | Name | Type | Value | TTL |
 |------|------|-------|-----|
@@ -27,7 +27,7 @@ At your domain registrar (wherever `qfx-finance.com` is registered), create the 
 | `api` | A | `199.192.21.55` | 300 |
 
 Wait for DNS propagation (usually 5–30 minutes) before continuing.  
-Verify with: `dig qfx-finance.com +short` — should return `199.192.21.55`.
+Verify with: `dig fortress-fund.com +short` — should return `199.192.21.55`.
 
 ---
 
@@ -103,8 +103,8 @@ cp frontend/.env.example frontend/.env
 
 ```bash
 # Copy Nginx config
-cp nginx/qfx-finance.conf /etc/nginx/sites-available/qfx-finance.conf
-ln -sf /etc/nginx/sites-available/qfx-finance.conf /etc/nginx/sites-enabled/
+cp nginx/fortress-fund.conf /etc/nginx/sites-available/fortress-fund.conf
+ln -sf /etc/nginx/sites-available/fortress-fund.conf /etc/nginx/sites-enabled/
 
 # Remove default site if present
 rm -f /etc/nginx/sites-enabled/default
@@ -125,7 +125,7 @@ chmod +x nginx/ssl-setup.sh
 sudo nginx/ssl-setup.sh
 ```
 
-This installs Certbot, obtains certificates for both `qfx-finance.com` and `api.qfx-finance.com`, and configures automatic renewal.
+This installs Certbot, obtains certificates for both `fortress-fund.com` and `api.fortress-fund.com`, and configures automatic renewal.
 
 ---
 
@@ -171,13 +171,13 @@ Once secrets are set, every push to `main` that passes CI will automatically dep
 
 ```bash
 # Frontend
-curl -I https://qfx-finance.com
+curl -I https://fortress-fund.com
 
 # Backend API health
-curl https://api.qfx-finance.com/api
+curl https://api.fortress-fund.com/api
 
 # Swagger docs
-curl -I https://api.qfx-finance.com/api/docs
+curl -I https://api.fortress-fund.com/api/docs
 ```
 
 ---
@@ -189,5 +189,5 @@ curl -I https://api.qfx-finance.com/api/docs
 | Domain not resolving | Check DNS A records; wait for propagation |
 | SSL certificate error | Re-run `nginx/ssl-setup.sh`; ensure port 80 is open |
 | 502 Bad Gateway | Frontend/backend containers not running — check `docker compose ps` |
-| CORS errors | Ensure `FRONTEND_URL=https://qfx-finance.com` in `backend/.env` |
-| API 404 on all routes | `NEXT_PUBLIC_API_URL` must end with `/api` (e.g. `https://api.qfx-finance.com/api`) |
+| CORS errors | Ensure `FRONTEND_URL=https://fortress-fund.com` in `backend/.env` |
+| API 404 on all routes | `NEXT_PUBLIC_API_URL` must end with `/api` (e.g. `https://api.fortress-fund.com/api`) |
