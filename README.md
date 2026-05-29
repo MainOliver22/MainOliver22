@@ -1,4 +1,4 @@
-# 🚀 Investment Platform
+# 🚀 Fortress Fund
 
 > A battle-tested, full-stack investment platform built for real-world usage — featuring crypto wallets, algorithmic bot trading, live asset exchange, KYC compliance, and a powerful admin panel.
 
@@ -96,6 +96,8 @@ docker-compose up -d
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:4000/api/docs |
 | Adminer (DB) | http://localhost:8080 |
+| Production Frontend | https://fortress-fund.com |
+| Production API | https://api.fortress-fund.com/api |
 
 ---
 

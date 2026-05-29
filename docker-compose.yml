@@ -46,8 +46,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-platform_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-investment_platform}
       REDIS_URL: redis://redis:6379
-      APP_URL: https://api.qfx-finance.com
-      FRONTEND_URL: https://qfx-finance.com
+      APP_URL: https://api.fortress-fund.com
+      FRONTEND_URL: https://fortress-fund.com
       NODE_ENV: production
 
   frontend:
@@ -55,7 +55,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
+        NEXT_PUBLIC_API_URL: https://api.fortress-fund.com/api
         NEXT_PUBLIC_APP_NAME: InvestmentPlatform
     restart: unless-stopped
     ports:

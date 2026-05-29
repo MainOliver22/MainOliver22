@@ -1,23 +1,23 @@
 #!/bin/bash
 # ============================================================
-# QFX Finance — SSL Certificate Setup via Certbot
+# Fortress Fund — SSL Certificate Setup via Certbot
 # Run this script ONCE on the VPS to obtain Let's Encrypt
-# certificates for qfx-finance.com and api.qfx-finance.com.
+# certificates for fortress-fund.com and api.fortress-fund.com.
 #
 # Prerequisites:
 #   - Nginx installed and running (nginx -t passes)
 #   - DNS A records already pointing to this server:
-#       qfx-finance.com     -> 199.192.21.55
-#       www.qfx-finance.com -> 199.192.21.55
-#       api.qfx-finance.com -> 199.192.21.55
+#       fortress-fund.com     -> 199.192.21.55
+#       www.fortress-fund.com -> 199.192.21.55
+#       api.fortress-fund.com -> 199.192.21.55
 #   - Port 80 open in firewall (ufw allow 'Nginx HTTP')
 # ============================================================
 
 set -e
 
-DOMAIN="qfx-finance.com"
-API_DOMAIN="api.qfx-finance.com"
-EMAIL="admin@qfx-finance.com"  # Change to a real contact email
+DOMAIN="fortress-fund.com"
+API_DOMAIN="api.fortress-fund.com"
+EMAIL="admin@fortress-fund.com"  # Change to a real contact email
 
 echo "==> Installing Certbot..."
 apt-get update -qq
