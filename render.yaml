@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: fortress-fund-api
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        scope: build
+      - key: REDIS_URL
+        scope: build
+      - key: NODE_ENV
+        value: production
+      - key: APP_URL
+        scope: build
+      - key: FRONTEND_URL
+        scope: build
+      - key: JWT_SECRET
+        scope: build
+      - key: ADMIN_DEFAULT_EMAIL
+        scope: build
+      - key: STRIPE_SECRET_KEY
+        scope: build
+
+  - type: web
+    name: fortress-fund-frontend
+    env: node
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run start
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        scope: build
+      - key: NODE_ENV
+        value: production
+
+  - type: pserv
+    name: postgres
+    plan: free
+    ipAllowList: []
+    
+  - type: redis
+    name: redis
+    plan: free
+    ipAllowList: []
