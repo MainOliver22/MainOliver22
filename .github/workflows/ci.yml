@@ -71,5 +71,5 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://api.fortress-fund.com/api
+          NEXT_PUBLIC_API_URL: https://api.qfx-finance.com/api
           NEXT_PUBLIC_APP_NAME: InvestmentPlatform
