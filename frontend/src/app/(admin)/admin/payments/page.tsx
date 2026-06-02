@@ -71,56 +71,77 @@ export default function AdminPaymentsPage() {
     'bg-gray-100 text-gray-600';
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Payments</h1>
-      <div className="flex gap-2 mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Payment Management</h1>
+        <div className="text-sm text-gray-500">Total: {deposits.length + withdrawals.length} transactions</div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-gray-200">
         <button
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === 'deposits' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'}`}
           onClick={() => setTab('deposits')}
+          className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+            tab === 'deposits'
+              ? 'text-blue-600 border-blue-600'
+              : 'text-gray-600 border-transparent hover:text-gray-900'
+          }`}
         >
-          Deposits ({deposits.length})
+          Deposits {deposits.length > 0 && `(${deposits.length})`}
         </button>
         <button
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === 'withdrawals' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'}`}
           onClick={() => setTab('withdrawals')}
+          className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+            tab === 'withdrawals'
+              ? 'text-blue-600 border-blue-600'
+              : 'text-gray-600 border-transparent hover:text-gray-900'
+          }`}
         >
-          Withdrawals ({withdrawals.length})
+          Withdrawals {withdrawals.length > 0 && `(${withdrawals.length})`}
         </button>
       </div>
 
       {tab === 'deposits' && (
         <Card>
-          <CardHeader><CardTitle>All Deposits</CardTitle></CardHeader>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-3 pr-4">User</th>
-                  <th className="pb-3 pr-4">Asset</th>
-                  <th className="pb-3 pr-4">Amount</th>
-                  <th className="pb-3 pr-4">Method</th>
-                  <th className="pb-3 pr-4">Status</th>
-                  <th className="pb-3">Date</th>
+                <tr className="text-left text-gray-600 border-b bg-gray-50">
+                  <th className="px-4 py-3 font-medium">User</th>
+                  <th className="px-4 py-3 font-medium">Asset</th>
+                  <th className="px-4 py-3 font-medium">Amount</th>
+                  <th className="px-4 py-3 font-medium">Method</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Date</th>
                 </tr>
               </thead>
               <tbody>
-                {deposits.map(d => (
-                  <tr key={d.id} className="border-b border-gray-50">
-                    <td className="py-3 pr-4 text-gray-600 text-xs">
-                      {d.user ? `${d.user.firstName} ${d.user.lastName}` : '—'}<br />
-                      <span className="text-gray-400">{d.user?.email}</span>
+                {deposits.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                      No deposits found
                     </td>
-                    <td className="py-3 pr-4 font-medium">{d.asset?.symbol ?? '—'}</td>
-                    <td className="py-3 pr-4 font-mono">{parseFloat(d.amount).toFixed(6)}</td>
-                    <td className="py-3 pr-4 text-gray-500">{d.method}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${depositStatusCls(d.status)}`}>{d.status}</span>
-                    </td>
-                    <td className="py-3 text-gray-500 text-xs">{formatDate(d.createdAt)}</td>
                   </tr>
-                ))}
-                {deposits.length === 0 && (
-                  <tr><td colSpan={6} className="py-6 text-center text-gray-500">No deposits</td></tr>
+                ) : (
+                  deposits.map(d => (
+                    <tr key={d.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                      <td className="px-4 py-3">
+                        <div className="text-sm font-medium text-gray-900">
+                          {d.user ? `${d.user.firstName} ${d.user.lastName}` : '—'}
+                        </div>
+                        <div className="text-xs text-gray-500">{d.user?.email}</div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{d.asset?.symbol ?? '—'}</td>
+                      <td className="px-4 py-3 font-mono text-gray-900">{parseFloat(d.amount).toFixed(6)}</td>
+                      <td className="px-4 py-3 text-gray-600">{d.method}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${depositStatusCls(d.status)}`}>
+                          {d.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(d.createdAt)}</td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
@@ -130,58 +151,80 @@ export default function AdminPaymentsPage() {
 
       {tab === 'withdrawals' && (
         <Card>
-          <CardHeader><CardTitle>All Withdrawals</CardTitle></CardHeader>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-3 pr-4">User</th>
-                  <th className="pb-3 pr-4">Asset</th>
-                  <th className="pb-3 pr-4">Amount</th>
-                  <th className="pb-3 pr-4">Method</th>
-                  <th className="pb-3 pr-4">Status</th>
-                  <th className="pb-3 pr-4">Date</th>
-                  <th className="pb-3">Actions</th>
+                <tr className="text-left text-gray-600 border-b bg-gray-50">
+                  <th className="px-4 py-3 font-medium">User</th>
+                  <th className="px-4 py-3 font-medium">Asset</th>
+                  <th className="px-4 py-3 font-medium">Amount</th>
+                  <th className="px-4 py-3 font-medium">Method</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Date</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {withdrawals.map(w => (
-                  <tr key={w.id} className="border-b border-gray-50">
-                    <td className="py-3 pr-4 text-gray-600 text-xs">
-                      {w.user ? `${w.user.firstName} ${w.user.lastName}` : '—'}<br />
-                      <span className="text-gray-400">{w.user?.email}</span>
-                    </td>
-                    <td className="py-3 pr-4 font-medium">{w.asset?.symbol ?? '—'}</td>
-                    <td className="py-3 pr-4 font-mono">{parseFloat(w.amount).toFixed(6)}</td>
-                    <td className="py-3 pr-4 text-gray-500">{w.method}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${withdrawalStatusCls(w.status)}`}>{w.status}</span>
-                    </td>
-                    <td className="py-3 pr-4 text-gray-500 text-xs">{formatDate(w.createdAt)}</td>
-                    <td className="py-3">
-                      {w.status === 'PENDING' && (
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => approveWithdrawal(w.id)}>Approve</Button>
-                          <Button size="sm" variant="danger" onClick={() => setRejecting(w.id)}>Reject</Button>
-                        </div>
-                      )}
-                      {rejecting === w.id && (
-                        <div className="mt-2 flex gap-2">
-                          <input
-                            className="border rounded px-2 py-1 text-xs flex-1"
-                            placeholder="Rejection reason"
-                            value={reason}
-                            onChange={e => setReason(e.target.value)}
-                          />
-                          <Button size="sm" variant="danger" onClick={() => rejectWithdrawal(w.id)}>Confirm</Button>
-                          <Button size="sm" variant="ghost" onClick={() => setRejecting(null)}>Cancel</Button>
-                        </div>
-                      )}
+                {withdrawals.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-gray-500">
+                      No withdrawals found
                     </td>
                   </tr>
-                ))}
-                {withdrawals.length === 0 && (
-                  <tr><td colSpan={7} className="py-6 text-center text-gray-500">No withdrawals</td></tr>
+                ) : (
+                  withdrawals.map(w => (
+                    <tr key={w.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                      <td className="px-4 py-3">
+                        <div className="text-sm font-medium text-gray-900">
+                          {w.user ? `${w.user.firstName} ${w.user.lastName}` : '—'}
+                        </div>
+                        <div className="text-xs text-gray-500">{w.user?.email}</div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{w.asset?.symbol ?? '—'}</td>
+                      <td className="px-4 py-3 font-mono text-gray-900">{parseFloat(w.amount).toFixed(6)}</td>
+                      <td className="px-4 py-3 text-gray-600">{w.method}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${withdrawalStatusCls(w.status)}`}>
+                          {w.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(w.createdAt)}</td>
+                      <td className="px-4 py-3">
+                        {w.status === 'PENDING' && !rejecting && rejecting !== w.id && (
+                          <div className="flex gap-1">
+                            <Button size="sm" onClick={() => approveWithdrawal(w.id)}>Approve</Button>
+                            <Button size="sm" variant="danger" onClick={() => setRejecting(w.id)}>
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                        {rejecting === w.id && (
+                          <div className="space-y-2">
+                            <textarea
+                              className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                              placeholder="Rejection reason..."
+                              value={reason}
+                              onChange={e => setReason(e.target.value)}
+                              rows={1}
+                            />
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="danger"
+                                onClick={() => rejectWithdrawal(w.id)}
+                              >
+                                Confirm
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => setRejecting(null)}>
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        {w.status !== 'PENDING' && <span className="text-xs text-gray-500">—</span>}
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
